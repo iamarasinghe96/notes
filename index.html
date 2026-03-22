@@ -126,49 +126,25 @@
       box-shadow: 0 0 0 3px rgba(91,189,46,0.18);
     }
 
-    /* ── Notes table ───────────────────────────────────────────────── */
-    .notes-table { width: 100%; }
-
-    .notes-head {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      background: #f8f9fa;
-      border-bottom: 1.5px solid var(--border);
-      padding: 6px 0;
-    }
-    .notes-head span {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #444;
-      text-align: center;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-    .notes-head span:first-child {
-      border-right: 1px solid var(--border);
-    }
-
-    .note-row {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      border-bottom: 1px solid #e8e8e8;
-      min-height: var(--row-h);
-    }
-    .note-row:last-child { border-bottom: none; }
-
-    .note-row input {
-      border: none;
-      outline: none;
-      font-size: 0.88rem;
-      padding: 0 10px;
-      height: var(--row-h);
+    /* ── Notes textarea ────────────────────────────────────────────── */
+    .notes-body { padding: 10px 12px 12px; }
+    .notes-body textarea {
       width: 100%;
-      background: transparent;
+      min-height: 320px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      font-family: var(--font);
+      resize: vertical;
+      outline: none;
       -webkit-appearance: none;
     }
-    .note-row input:focus { background: #f0fff4; }
-    .cell-dt  { border-right: 1px solid #ddd; }
-    .cell-dt input { font-size: 0.8rem; color: #333; text-align: center; }
+    .notes-body textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(91,189,46,0.18);
+    }
 
     /* ═══════════════════════════════════════════════════════════════
        PRINT – A4 DOCUMENT (hidden on screen)
@@ -319,36 +295,17 @@
         text-align: center;
       }
 
-      /* Table rows */
-      .p-table {
+      /* Notes text block */
+      .p-notes-block {
         border: 0.8pt solid #000;
         border-top: none;
         flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .p-row {
-        display: flex;
-        border-bottom: 0.4pt solid #bbb;
-        min-height: 7.2mm;
-        flex: 1;
-      }
-      .p-row:last-child { border-bottom: none; }
-      .p-cell-dt {
-        width: 24mm;
-        flex-shrink: 0;
-        border-right: 0.4pt solid #bbb;
-        font-size: 7pt;
-        padding: 1mm 1.5mm;
-        display: flex;
-        align-items: center;
-      }
-      .p-cell-note {
-        flex: 1;
-        font-size: 7.5pt;
-        padding: 1mm 1.5mm;
-        display: flex;
-        align-items: center;
+        padding: 3mm;
+        font-size: 9pt;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
       }
 
       /* Footer */
@@ -425,12 +382,8 @@
   <!-- Progress notes card -->
   <div class="card">
     <div class="card-head">Progress Notes</div>
-    <div class="notes-table">
-      <div class="notes-head">
-        <span>Date / Time</span>
-        <span>Notes — sign each entry with name &amp; designation</span>
-      </div>
-      <div id="screen-rows"></div>
+    <div class="notes-body">
+      <textarea id="s_notes" placeholder="Type your progress notes here…" aria-label="Progress notes"></textarea>
     </div>
   </div>
 
@@ -493,8 +446,8 @@
       <div class="p-sh-notes">Please sign each entry and print surname and designation</div>
     </div>
 
-    <!-- Note rows -->
-    <div class="p-table" id="print-rows"></div>
+    <!-- Notes text -->
+    <div class="p-notes-block" id="p_notes"></div>
 
     <!-- Footer -->
     <div class="p-footer">
@@ -515,36 +468,6 @@
 
 
 <script>
-  const NUM_ROWS = 29;
-
-  // ── Build screen rows ────────────────────────────────────────────────────
-  const screenRows = document.getElementById('screen-rows');
-  for (let i = 0; i < NUM_ROWS; i++) {
-    const row = document.createElement('div');
-    row.className = 'note-row';
-    row.innerHTML = `
-      <div class="cell-dt">
-        <input id="s_dt_${i}" type="text" inputmode="numeric"
-               placeholder="DD/MM HH:MM" aria-label="Date/time row ${i+1}"/>
-      </div>
-      <div class="cell-note">
-        <input id="s_note_${i}" type="text"
-               placeholder="" aria-label="Note row ${i+1}"/>
-      </div>`;
-    screenRows.appendChild(row);
-  }
-
-  // ── Build print rows ─────────────────────────────────────────────────────
-  const printRows = document.getElementById('print-rows');
-  for (let i = 0; i < NUM_ROWS; i++) {
-    const row = document.createElement('div');
-    row.className = 'p-row';
-    row.innerHTML = `
-      <div class="p-cell-dt"  id="p_dt_${i}"></div>
-      <div class="p-cell-note" id="p_note_${i}"></div>`;
-    printRows.appendChild(row);
-  }
-
   // ── Generate barcode for print view ──────────────────────────────────────
   JsBarcode('#p-barcode', 'FAW0004', {
     format: 'CODE128', width: 1.4, height: 50,
@@ -558,11 +481,7 @@
     document.getElementById('p_given').textContent   = document.getElementById('s_given').value;
     document.getElementById('p_dob').textContent     = document.getElementById('s_dob').value;
     document.getElementById('p_sex').textContent     = document.getElementById('s_sex').value;
-
-    for (let i = 0; i < NUM_ROWS; i++) {
-      document.getElementById(`p_dt_${i}`).textContent   = document.getElementById(`s_dt_${i}`).value;
-      document.getElementById(`p_note_${i}`).textContent = document.getElementById(`s_note_${i}`).value;
-    }
+    document.getElementById('p_notes').textContent   = document.getElementById('s_notes').value;
   }
 
   function savePDF() {
@@ -570,7 +489,6 @@
     window.print();
   }
 
-  // also sync if user uses Ctrl+P directly
   window.addEventListener('beforeprint', syncToPrint);
 </script>
 
