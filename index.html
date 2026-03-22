@@ -147,23 +147,17 @@
       font: 8pt Arial,sans-serif;
       white-space: nowrap; min-width: 22mm; flex-shrink: 0;
     }
-    /* Wrapper holds the dots layer + input on top */
     .pid-field {
-      flex: 1; position: relative; min-width: 0; min-height: 5mm;
+      flex: 1; min-width: 0;
     }
-    /* Always-visible dots — typed text covers them from the left */
-    .pid-field::before {
-      content: attr(data-dots);
-      position: absolute; inset: 0;
-      font: 8pt/5mm Arial,sans-serif; color: #999;
-      letter-spacing: 0.5px; white-space: nowrap; overflow: hidden;
-      padding: 0 1mm; pointer-events: none;
+    .pid-field input, .pid-field select {
+      width: 100%; border: none; outline: none;
+      font: 8pt Arial,sans-serif;
+      background: transparent; padding: 0 1mm;
     }
-    .pid-field input {
-      position: absolute; inset: 0;
-      border: none; outline: none;
-      font: 8pt/5mm Arial,sans-serif;
-      background: transparent; width: 100%; padding: 0 1mm;
+    .pid-field select {
+      -webkit-appearance: none; appearance: none;
+      cursor: pointer; color: #222;
     }
     .sex-lbl { font: 8pt Arial,sans-serif; min-width: 8mm; padding-left: 2mm; flex-shrink: 0; }
 
@@ -325,30 +319,35 @@
           <div class="pid-banner">(Affix Patient Identification Label here)</div>
           <div class="pid-row">
             <span class="pid-lbl">UR No:</span>
-            <div class="pid-field" data-dots="................................................................">
+            <div class="pid-field">
               <input type="text" autocomplete="off"/>
             </div>
           </div>
           <div class="pid-row">
             <span class="pid-lbl">Surname:</span>
-            <div class="pid-field" data-dots="................................................................">
+            <div class="pid-field">
               <input type="text" autocomplete="family-name"/>
             </div>
           </div>
           <div class="pid-row">
             <span class="pid-lbl">Given Names:</span>
-            <div class="pid-field" data-dots="................................................................">
+            <div class="pid-field">
               <input type="text" autocomplete="given-name"/>
             </div>
           </div>
           <div class="pid-row">
             <span class="pid-lbl">Date of Birth:</span>
-            <div class="pid-field" data-dots="................................" style="max-width:32mm">
-              <input type="text" inputmode="numeric"/>
+            <div class="pid-field" style="max-width:32mm">
+              <input type="text" inputmode="numeric" pattern="\d{2}/\d{2}/\d{4}" placeholder="DD/MM/YYYY"/>
             </div>
             <span class="sex-lbl">Sex:</span>
-            <div class="pid-field" data-dots="................" style="max-width:18mm">
-              <input type="text"/>
+            <div class="pid-field" style="max-width:20mm">
+              <select>
+                <option value=""></option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="X">Other</option>
+              </select>
             </div>
           </div>
         </div>
