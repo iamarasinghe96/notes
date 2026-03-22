@@ -66,18 +66,19 @@
     }
 
 
-    /* Group barcode + label so label always flows directly below barcode */
+    /* Barcode + label side by side: barcode on left, FAW0004 on right */
     .bc-code-group {
-      display: flex; flex-direction: column; align-items: center;
+      display: flex; flex-direction: row; align-items: flex-start;
       margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
+      gap: 1mm;
     }
     /* Wrapper sized to visual (rotated) dimensions by JS */
     .bc-barcode-wrap {
       position: relative;
+      flex-shrink: 0;
       /* width + height set by JS */
     }
-    /* SVG is absolute so the wrapper owns its own dimensions;
-       transform pivots at top-left so element ends up in positive space */
+    /* SVG is absolute so the wrapper owns its own dimensions */
     #barcode {
       position: absolute;
       top: 0; left: 0;
@@ -87,7 +88,7 @@
     .bc-label {
       font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
       writing-mode: vertical-rl; transform: rotate(180deg);
-      margin-top: 3mm; white-space: nowrap;
+      white-space: nowrap; flex-shrink: 0;
     }
     .bc-store-order {
       font: 5pt Arial,sans-serif; color: #444;
@@ -403,10 +404,10 @@
 <script>
   JsBarcode('#barcode', 'FAW0004', {
     format:       'CODE128',
-    width:        1.6,   // bar module width → controls barcode length (= visual height after rotation)
-    height:       28,    // px → becomes visual width after rotation (~7mm, fits in 15mm strip)
+    width:        1.4,   // bar module width → controls barcode length (= visual height after rotation)
+    height:       18,    // px → becomes visual width after rotation (~5mm); label takes remaining ~7mm
     displayValue: false,
-    margin:       2,
+    margin:       1,
     background:   'transparent'
   });
 
