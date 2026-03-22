@@ -64,16 +64,7 @@
       padding-top: var(--pg-top);
       position: relative;
     }
-    /* Hole punches on the left edge */
-    .bc-strip::before, .bc-strip::after {
-      content: '';
-      position: absolute;
-      left: 3mm; width: 5mm; height: 5mm;
-      border-radius: 50%; border: 1pt solid #bbb;
-      background: #888; /* shows grey (page bg) to simulate hole */
-    }
-    .bc-strip::before { top: 80mm; }
-    .bc-strip::after  { top: 200mm; }
+
 
     /* Green stripe pattern */
     .bc-stripes {
@@ -258,9 +249,6 @@
         box-shadow: none !important;
         width: 210mm !important;
         min-height: 297mm !important;
-      }
-      .bc-strip::before, .bc-strip::after {
-        background: #ddd !important;
       }
     }
   </style>
