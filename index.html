@@ -16,7 +16,7 @@
       --tab-w:  13mm;   /* right green tab */
       --pg-top: 10mm;   /* page top margin */
       --pg-bot: 10mm;   /* page bottom margin */
-      --hdr-h:  45mm;   /* header height */
+      --hdr-h:  52mm;   /* header height — fits larger logo */
       --subh-h:  8mm;   /* sub-header row */
     }
 
@@ -66,9 +66,9 @@
     }
 
 
-    /* Barcode on left, FAW0004 runs down alongside it on the right */
+    /* Barcode on left, FAW0004 vertically centred alongside it on the right */
     .bc-code-group {
-      display: flex; flex-direction: row; align-items: flex-start;
+      display: flex; flex-direction: row; align-items: center;
       margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
     }
     /* Wrapper sized to visual (rotated) dimensions by JS */
@@ -125,7 +125,7 @@
       padding: 3mm 3mm 3mm 4mm;
     }
     .brand { display: flex; align-items: center; gap: 3mm; }
-    .brand svg  { width: 13mm; height: 13mm; }
+    .brand svg  { width: 22mm; height: 22mm; }
     .brand-name {
       font: 700 7.5pt Arial,sans-serif;
       line-height: 1.5;
