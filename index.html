@@ -16,7 +16,7 @@
       --tab-w:  13mm;   /* right green tab */
       --pg-top: 10mm;   /* page top margin */
       --pg-bot: 10mm;   /* page bottom margin */
-      --hdr-h:  40mm;   /* header height matching original form */
+      --hdr-h:  32mm;   /* header height matching original form */
       --subh-h:  8mm;   /* sub-header row */
     }
 
@@ -116,16 +116,17 @@
       border-bottom: 1pt solid #333;
     }
 
-    /* Left panel: logo + title */
+    /* Left panel: logo + title — all centred */
     .hdr-left {
       flex: 0 0 48%;
       border-right: 1pt solid #333;
       display: flex; flex-direction: column;
-      justify-content: space-between;
-      padding: 2mm 2mm 2mm 3mm;
+      align-items: center; justify-content: center;
+      gap: 2mm;
+      padding: 2mm 3mm;
     }
     .brand { display: flex; align-items: center; gap: 2mm; }
-    .brand svg  { width: 16mm; height: 16mm; }
+    .brand svg  { width: 14mm; height: 14mm; }
     .brand-name {
       font: 700 7pt Arial,sans-serif;
       line-height: 1.4;
@@ -138,7 +139,7 @@
     /* Right panel: patient ID box */
     .hdr-right {
       flex: 1; display: flex; flex-direction: column;
-      padding: 1.5mm 2mm 1.5mm 2mm;
+      padding: 1mm 2mm 1mm 2mm;
       gap: 0;
     }
     .pid-banner {
@@ -150,7 +151,7 @@
     .pid-row {
       display: flex; align-items: center;
       border-bottom: .5pt dotted #888;
-      min-height: 7mm; padding: 0;
+      min-height: 6mm; padding: 0;
     }
     .pid-row:last-child { border-bottom: none; }
     .pid-lbl {
