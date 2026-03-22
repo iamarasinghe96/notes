@@ -66,11 +66,10 @@
     }
 
 
-    /* Barcode + label side by side: barcode on left, FAW0004 on right */
+    /* Barcode on top, FAW0004 centered below it */
     .bc-code-group {
-      display: flex; flex-direction: row; align-items: flex-start;
+      display: flex; flex-direction: column; align-items: center;
       margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
-      gap: 1mm;
     }
     /* Wrapper sized to visual (rotated) dimensions by JS */
     .bc-barcode-wrap {
@@ -88,7 +87,7 @@
     .bc-label {
       font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
       writing-mode: vertical-rl; transform: rotate(180deg);
-      white-space: nowrap; flex-shrink: 0;
+      white-space: nowrap; margin-top: 2mm;
     }
     .bc-store-order {
       font: 5pt Arial,sans-serif; color: #444;
