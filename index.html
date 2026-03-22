@@ -174,19 +174,14 @@
     }
 
     /* ── Notes area: ruled lines + two columns ────────────────────── */
-    .notes-area {
-      flex: 1; display: flex; position: relative;
-      /* vertical divider between DT and notes columns */
-    }
-    .notes-area::before {
-      content: '';
-      position: absolute;
-      left: var(--dt-col); top: 0; bottom: 0;
-      width: 1pt; background: #333;
-      pointer-events: none; z-index: 1;
-    }
+    .notes-area { flex: 1; display: flex; }
 
-    .col-dt    { width: var(--dt-col); flex-shrink: 0; }
+    /* border-right on col-dt matches sh-dt's border-right exactly
+       (both use box-sizing:border-box at the same --dt-col width) */
+    .col-dt {
+      width: var(--dt-col); flex-shrink: 0;
+      border-right: 1pt solid #333;
+    }
     .col-notes { flex: 1; }
 
     /* Ruled textarea – lines drawn via background gradient */
