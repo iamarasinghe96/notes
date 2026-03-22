@@ -8,233 +8,260 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Line height shared by all ruled elements */
-    :root { --lh: 28px; }
+    /* ── Precise A4 measurements from Gemini analysis ─────────────── */
+    :root {
+      --lh:      7mm;   /* line spacing – College Ruled */
+      --dt-col: 20mm;   /* Date/Time column width */
+      --bc-w:   15mm;   /* left barcode strip */
+      --tab-w:  13mm;   /* right green tab */
+      --pg-top: 10mm;   /* page top margin */
+      --pg-bot: 10mm;   /* page bottom margin */
+      --hdr-h:  45mm;   /* header height */
+      --subh-h:  8mm;   /* sub-header row */
+    }
 
     /* ── Toolbar ──────────────────────────────────────────────────── */
     #toolbar {
       position: sticky; top: 0; z-index: 100;
-      background: #fff;
-      border-bottom: 3px solid #5BBD2E;
-      padding: 8px 14px;
-      display: flex; align-items: center; gap: 10px;
+      background: #fff; border-bottom: 3px solid #5BBD2E;
+      padding: 8px 14px; display: flex; align-items: center; gap: 10px;
     }
-    .t-logo { display: flex; align-items: center; gap: 8px; }
-    .t-logo svg { width: 34px; height: 34px; flex-shrink: 0; }
-    .t-title { font: 700 0.85rem/1.2 system-ui, sans-serif; }
-    .t-sub   { font: 0.68rem/1 system-ui, sans-serif; color: #666; }
+    .t-brand { display: flex; align-items: center; gap: 8px; }
+    .t-brand svg { width: 34px; height: 34px; flex-shrink: 0; }
+    .t-title { font: 700 .85rem/1.2 system-ui,sans-serif; }
+    .t-sub   { font: .68rem/1 system-ui,sans-serif; color: #666; }
     .spacer  { flex: 1; }
     .btn-pdf {
       background: #5BBD2E; color: #fff; border: none;
       border-radius: 8px; padding: 8px 14px;
-      font: 700 0.82rem system-ui, sans-serif;
+      font: 700 .82rem system-ui,sans-serif;
       cursor: pointer; display: flex; align-items: center; gap: 6px;
-      white-space: nowrap; -webkit-tap-highlight-color: transparent;
     }
-    .btn-pdf:active { opacity: 0.75; }
+    .btn-pdf:active { opacity: .75; }
 
-    /* ── Page background ──────────────────────────────────────────── */
+    /* ── Page ─────────────────────────────────────────────────────── */
     body { background: #888; }
-
     .a4-wrapper {
-      display: flex; justify-content: center; align-items: flex-start;
+      display: flex; justify-content: center;
       padding: 14px 0 40px;
     }
 
-    /* ── A4 page ──────────────────────────────────────────────────── */
+    /* A4 sheet: flex row – barcode strip | form box | green tab */
     .a4 {
       width: 210mm; min-height: 297mm;
       background: #fff;
+      display: flex; flex-direction: row;
       position: relative;
-      display: flex;
       transform-origin: top center;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+      box-shadow: 0 4px 24px rgba(0,0,0,.45);
       flex-shrink: 0;
     }
 
-    /* ── Left barcode strip (outside main box) ────────────────────── */
+    /* ── Left barcode strip ───────────────────────────────────────── */
     .bc-strip {
-      width: 18mm; flex-shrink: 0;
-      display: flex; flex-direction: column;
-      align-items: center; padding-top: 5mm;
+      width: var(--bc-w); flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: var(--pg-top);
+      position: relative;
     }
-    /* Green block stripes */
+    /* Hole punches on the left edge */
+    .bc-strip::before, .bc-strip::after {
+      content: '';
+      position: absolute;
+      left: 3mm; width: 5mm; height: 5mm;
+      border-radius: 50%; border: 1pt solid #bbb;
+      background: #888; /* shows grey (page bg) to simulate hole */
+    }
+    .bc-strip::before { top: 80mm; }
+    .bc-strip::after  { top: 200mm; }
+
+    /* Green stripe pattern */
     .bc-stripes {
-      width: 13mm; height: 52mm;
+      width: 10mm; height: 50mm;
       background: repeating-linear-gradient(
         to bottom,
-        #5BBD2E 0, #5BBD2E 4mm,
-        #fff    4mm, #fff  6mm
+        #5BBD2E 0, #5BBD2E 5mm,
+        #fff    5mm, #fff  7mm
       );
     }
-    .bc-code  { transform: rotate(90deg); margin-top: 6mm; }
+    .bc-barcode { transform: rotate(90deg); margin-top: 8mm; }
     .bc-label {
-      font: bold 6pt Arial, sans-serif;
-      letter-spacing: 0.04em;
-      transform: rotate(90deg);
-      white-space: nowrap;
-      margin-top: 16mm;
-    }
-
-    /* ── Green right tab (outside main box) ──────────────────────── */
-    .green-tab {
-      position: absolute; right: 0; top: 0; bottom: 0;
-      width: 18mm; background: #5BBD2E;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-    }
-    .tab-title {
-      color: #fff; font: 700 8pt Arial, sans-serif;
-      letter-spacing: 0.1em;
+      font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
       writing-mode: vertical-rl; transform: rotate(180deg);
-      margin-bottom: 35mm;
-    }
-    .tab-mr4 {
-      color: #fff; font: 700 9pt Arial, sans-serif;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-      position: absolute; bottom: 8mm;
+      margin-top: 6mm; white-space: nowrap;
     }
 
     /* ── Main form box ────────────────────────────────────────────── */
     .form-box {
-      flex: 1; margin-right: 18mm;
-      padding: 5mm 2mm 4mm 0;
+      flex: 1;
+      padding: var(--pg-top) 0 var(--pg-bot);
       display: flex; flex-direction: column;
     }
 
-    /* outer border wraps header + subheader + notes + footer lines */
-    .outer-border {
+    /* Outer 1pt border wraps header, subheader, notes */
+    .outer {
       border: 1pt solid #333;
       flex: 1; display: flex; flex-direction: column;
     }
 
-    /* ── Header ───────────────────────────────────────────────────── */
+    /* ── Header (45 mm) ───────────────────────────────────────────── */
     .hdr {
+      min-height: var(--hdr-h);
       display: flex;
       border-bottom: 1pt solid #333;
-      min-height: 38mm;
     }
+
+    /* Left panel: logo + title */
     .hdr-left {
-      flex: 0 0 46%;
+      flex: 0 0 48%;
       border-right: 1pt solid #333;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: space-between;
-      padding: 3mm 3mm 2mm;
+      justify-content: space-between;
+      padding: 3mm 3mm 3mm 4mm;
     }
-    .brand { display: flex; align-items: center; gap: 2.5mm; align-self: flex-start; }
-    .brand svg  { width: 14mm; height: 14mm; }
-    .brand-name { font: 700 8pt Arial, sans-serif; line-height: 1.5; }
-    .form-title { font: 900 13pt Arial, sans-serif; }
+    .brand { display: flex; align-items: center; gap: 3mm; }
+    .brand svg  { width: 13mm; height: 13mm; }
+    .brand-name {
+      font: 700 7.5pt Arial,sans-serif;
+      line-height: 1.5;
+    }
+    .form-title {
+      font: 900 13pt Arial,sans-serif;
+      letter-spacing: .02em;
+    }
 
+    /* Right panel: patient ID box */
     .hdr-right {
-      flex: 1; padding: 2mm 3mm;
-      display: flex; flex-direction: column; gap: 0;
+      flex: 1; display: flex; flex-direction: column;
+      padding: 2mm 3mm 2mm 3mm;
+      gap: 0;
     }
-    .pid-note { font: 6.5pt Arial, sans-serif; color: #333; margin-bottom: 2mm; }
-
-    /* Each patient field row uses a dotted underline like the physical form */
+    .pid-banner {
+      font: 6pt Arial,sans-serif;
+      color: #444; text-align: center;
+      margin-bottom: 1.5mm;
+    }
+    /* Each field row */
     .pid-row {
       display: flex; align-items: baseline;
-      padding: 1mm 0;
-      border-bottom: 0.6pt dotted #999;
-      min-height: 7mm;
+      border-bottom: .5pt dotted #888;
+      min-height: 8mm; padding: .5mm 0;
     }
     .pid-row:last-child { border-bottom: none; }
-    .pid-lbl { font: 8pt Arial, sans-serif; white-space: nowrap; min-width: 22mm; }
+    .pid-lbl {
+      font: 8pt Arial,sans-serif;
+      white-space: nowrap; min-width: 22mm;
+    }
     .pid-row input {
       flex: 1; border: none; outline: none;
-      font: 8pt Arial, sans-serif;
-      background: transparent; padding: 0 1mm;
-      min-width: 0;
+      font: 8pt Arial,sans-serif;
+      background: transparent; min-width: 0; padding: 0 1mm;
     }
-    .pid-dob { flex: 0 0 50% !important; }
-    .pid-row input:focus { background: rgba(91,189,46,0.07); }
+    .pid-row input:focus { background: rgba(91,189,46,.07); }
+    .sex-lbl { font: 8pt Arial,sans-serif; min-width: 8mm; padding-left: 2mm; }
 
-    /* ── Sub-header row ───────────────────────────────────────────── */
+    /* ── Sub-header row (8 mm) ────────────────────────────────────── */
     .subhdr {
-      display: flex;
+      min-height: var(--subh-h);
+      display: flex; align-items: center;
       border-bottom: 1pt solid #333;
-      min-height: 8mm; align-items: center;
     }
     .sh-dt {
-      width: 30mm; flex-shrink: 0;
+      width: var(--dt-col); flex-shrink: 0;
       border-right: 1pt solid #333;
-      font: 700 8pt Arial, sans-serif;
+      font: 700 7.5pt Arial,sans-serif;
       display: flex; align-items: center; justify-content: center;
-      height: 100%; padding: 1mm;
+      height: 100%; text-align: center; padding: 1mm;
     }
-    .sh-notes {
-      flex: 1; font: 700 7pt Arial, sans-serif;
-      text-align: center; padding: 0 2mm; line-height: 1.3;
+    .sh-note {
+      flex: 1; font: 700 7pt Arial,sans-serif;
+      text-align: center; padding: 0 2mm;
     }
 
-    /* ── Notes area with ruled lines ──────────────────────────────── */
+    /* ── Notes area: ruled lines + two columns ────────────────────── */
     .notes-area {
-      flex: 1; display: flex;
-      /* ruled lines as background — drawn every --lh pixels */
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent calc(var(--lh) - 1px),
-        #bbb       calc(var(--lh) - 1px),
-        #bbb       var(--lh)
-      );
-      background-size: 100% var(--lh);
-      /* vertical divider between Date/Time and Notes columns */
-      position: relative;
+      flex: 1; display: flex; position: relative;
+      /* vertical divider between DT and notes columns */
     }
-
-    /* Vertical divider line between dt and notes columns */
     .notes-area::before {
       content: '';
       position: absolute;
-      top: 0; bottom: 0;
-      left: 30mm;
-      width: 1pt;
-      background: #333;
-      pointer-events: none;
+      left: var(--dt-col); top: 0; bottom: 0;
+      width: 1pt; background: #333;
+      pointer-events: none; z-index: 1;
     }
 
-    .col-dt, .col-notes {
-      /* both textareas share same line-height so ruled lines align */
-      height: 100%;
-    }
-    .col-dt    { width: 30mm; flex-shrink: 0; }
+    .col-dt    { width: var(--dt-col); flex-shrink: 0; }
     .col-notes { flex: 1; }
 
+    /* Ruled textarea – lines drawn via background gradient */
     textarea {
-      width: 100%; height: 100%;
+      display: block; width: 100%; height: 100%;
+      min-height: 180mm;
       border: none; outline: none; resize: none;
-      font: 9pt/var(--lh) Arial, sans-serif;
-      background: transparent;
-      padding: 1px 3px 0;   /* top 1px nudges text to sit above each rule */
-      -webkit-appearance: none;
-      /* make background scroll with text so lines stay aligned */
+      font: 8pt/var(--lh) Arial,sans-serif;
+      background-color: transparent;
+      /* lined paper effect */
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--lh) - 0.3mm),
+        #bbb        calc(var(--lh) - 0.3mm),
+        #bbb        var(--lh)
+      );
       background-attachment: local;
-      min-height: 170mm;
+      background-size: 100% var(--lh);
+      padding: 0.5mm 2mm 0;
+      -webkit-appearance: none;
     }
-    textarea:focus { background-color: rgba(91,189,46,0.04); }
+    textarea:focus { outline: none; }
 
-    /* ── Footer ───────────────────────────────────────────────────── */
+    /* ── Footer (outside outer border) ───────────────────────────── */
     .footer {
-      display: flex; justify-content: space-between;
-      padding: 2mm 1mm 0;
-      font: 5.5pt Arial, sans-serif; color: #444;
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 1.5mm 0 0;
+      font: 5.5pt Arial,sans-serif; color: #444;
+    }
+    .footer strong { font: 700 5.5pt Arial,sans-serif; }
+
+    /* ── Right green tab ──────────────────────────────────────────── */
+    .green-tab {
+      width: var(--tab-w); flex-shrink: 0;
+      background: #5BBD2E;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative;
+    }
+    .tab-title {
+      color: #fff; font: 700 8pt Arial,sans-serif;
+      letter-spacing: .1em;
+      writing-mode: vertical-rl; transform: rotate(180deg);
+    }
+    .tab-mr4 {
+      position: absolute; bottom: 8mm;
+      color: #fff; font: 700 9pt Arial,sans-serif;
+      writing-mode: vertical-rl; transform: rotate(180deg);
     }
 
     /* ── Print ────────────────────────────────────────────────────── */
     @media print {
       @page { size: A4 portrait; margin: 0; }
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      *, *::before, *::after {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
       html, body { background: #fff !important; }
       #toolbar    { display: none !important; }
-      .a4-wrapper { padding: 0 !important; height: auto !important; }
+      .a4-wrapper { padding: 0 !important; }
       .a4 {
         transform: none !important;
         box-shadow: none !important;
-        width: 210mm !important; min-height: 297mm !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
       }
-      textarea { background-color: transparent !important; }
+      .bc-strip::before, .bc-strip::after {
+        background: #ddd !important;
+      }
     }
   </style>
 </head>
@@ -242,7 +269,7 @@
 
 <!-- Toolbar -->
 <div id="toolbar">
-  <div class="t-logo">
+  <div class="t-brand">
     <svg viewBox="0 0 44 44" fill="none">
       <circle cx="22" cy="13" r="9.5" stroke="#111" stroke-width="2.6"/>
       <circle cx="14" cy="30" r="9.5" stroke="#111" stroke-width="2.6"/>
@@ -255,7 +282,8 @@
   </div>
   <div class="spacer"></div>
   <button class="btn-pdf" onclick="window.print()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="6 9 6 2 18 2 18 9"/>
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
       <rect x="6" y="14" width="12" height="8"/>
@@ -264,22 +292,22 @@
   </button>
 </div>
 
-<!-- A4 form -->
+<!-- A4 page -->
 <div class="a4-wrapper" id="wrapper">
 <div class="a4" id="a4">
 
   <!-- Left barcode strip -->
   <div class="bc-strip">
     <div class="bc-stripes"></div>
-    <svg id="barcode" class="bc-code"></svg>
+    <svg id="barcode" class="bc-barcode"></svg>
     <span class="bc-label">FAW0004</span>
   </div>
 
-  <!-- Main form box -->
+  <!-- Main form -->
   <div class="form-box">
-    <div class="outer-border">
+    <div class="outer">
 
-      <!-- Header -->
+      <!-- Header: 45 mm -->
       <div class="hdr">
         <div class="hdr-left">
           <div class="brand">
@@ -294,10 +322,10 @@
         </div>
 
         <div class="hdr-right">
-          <div class="pid-note">(Affix Patient Identification Label here)</div>
+          <div class="pid-banner">(Affix Patient Identification Label here)</div>
           <div class="pid-row">
             <span class="pid-lbl">UR No:</span>
-            <input type="text" autocomplete="off" inputmode="text"/>
+            <input type="text" autocomplete="off"/>
           </div>
           <div class="pid-row">
             <span class="pid-lbl">Surname:</span>
@@ -309,40 +337,40 @@
           </div>
           <div class="pid-row">
             <span class="pid-lbl">Date of Birth:</span>
-            <input type="text" class="pid-dob" inputmode="numeric" placeholder="DD/MM/YYYY"/>
-            <span class="pid-lbl" style="min-width:8mm;">Sex:</span>
-            <input type="text"/>
+            <input type="text" inputmode="numeric" placeholder="DD/MM/YYYY" style="max-width:30mm"/>
+            <span class="sex-lbl">Sex:</span>
+            <input type="text" style="max-width:14mm"/>
           </div>
         </div>
-      </div><!-- /.hdr -->
+      </div>
 
-      <!-- Sub-header -->
+      <!-- Sub-header: 8 mm -->
       <div class="subhdr">
         <div class="sh-dt">Date/Time</div>
-        <div class="sh-notes">Please sign each entry and print surname and designation</div>
+        <div class="sh-note">Please sign each entry and print surname and designation</div>
       </div>
 
-      <!-- Notes area: two columns, ruled lines as background -->
+      <!-- Notes: two columns with 7 mm ruled lines -->
       <div class="notes-area">
         <div class="col-dt">
-          <textarea aria-label="Date/Time" spellcheck="false"></textarea>
+          <textarea aria-label="Date and Time" spellcheck="false"></textarea>
         </div>
         <div class="col-notes">
-          <textarea aria-label="Progress notes" spellcheck="true"></textarea>
+          <textarea aria-label="Progress notes"></textarea>
         </div>
       </div>
 
-    </div><!-- /.outer-border -->
+    </div><!-- /.outer -->
 
-    <!-- Footer (outside outer border) -->
+    <!-- Footer -->
     <div class="footer">
       <span>Version 1.0 &nbsp; March 2021</span>
-      <span>Store Order No.: 90083</span>
+      <span>Store Order No.: 99083</span>
       <strong>Please turn over</strong>
     </div>
   </div><!-- /.form-box -->
 
-  <!-- Green right tab -->
+  <!-- Right green tab -->
   <div class="green-tab">
     <span class="tab-title">PROGRESS NOTES</span>
     <span class="tab-mr4">MR4</span>
@@ -353,26 +381,27 @@
 
 <script>
   JsBarcode('#barcode', 'FAW0004', {
-    format: 'CODE128', width: 1.3, height: 42,
-    displayValue: false, margin: 0, background: 'transparent'
+    format:       'CODE128',
+    width:        1.2,
+    height:       38,
+    displayValue: false,
+    margin:       0,
+    background:   'transparent'
   });
 
   function scaleA4() {
     const a4      = document.getElementById('a4');
     const wrapper = document.getElementById('wrapper');
     a4.style.transform = '';
-    const naturalW = a4.offsetWidth;
-    const naturalH = a4.offsetHeight;
-    const scale    = Math.min(window.innerWidth / naturalW, 1);
+    const w     = a4.offsetWidth;
+    const h     = a4.offsetHeight;
+    const scale = Math.min(window.innerWidth / w, 1);
     if (scale < 1) a4.style.transform = `scale(${scale})`;
-    wrapper.style.height = (naturalH * scale + 56) + 'px';
+    wrapper.style.height = (h * scale + 56) + 'px';
   }
 
   scaleA4();
   window.addEventListener('resize', scaleA4);
-  document.querySelectorAll('textarea').forEach(ta =>
-    ta.addEventListener('input', () => setTimeout(scaleA4, 0))
-  );
 </script>
 
 </body>
