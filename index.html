@@ -66,20 +66,26 @@
     }
 
 
-    /* Green stripe pattern */
-    .bc-stripes {
-      width: 10mm; height: 50mm;
-      background: repeating-linear-gradient(
-        to bottom,
-        #5BBD2E 0, #5BBD2E 5mm,
-        #fff    5mm, #fff  7mm
-      );
+    /* Vertical barcode wrapper — reserves the rotated element's layout space */
+    .bc-barcode-wrap {
+      position: relative;
+      /* width = barcode height param (visual width after rotation) */
+      /* height set by JS after generation */
+      margin-top: calc(var(--hdr-h) + var(--subh-h) + var(--pg-top) + 4mm);
+      overflow: visible;
     }
-    .bc-barcode { transform: rotate(90deg); margin-top: 8mm; }
+    /* rotate(90deg) translateY(-100%) pivoted at top-left
+       makes bars run left-to-right (vertical barcode appearance)
+       and positions element correctly without overflowing */
+    #barcode {
+      display: block;
+      transform: rotate(90deg) translateY(-100%);
+      transform-origin: top left;
+    }
     .bc-label {
       font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
       writing-mode: vertical-rl; transform: rotate(180deg);
-      margin-top: 6mm; white-space: nowrap;
+      margin-top: 3mm; white-space: nowrap;
     }
 
     /* ── Main form box ────────────────────────────────────────────── */
@@ -286,8 +292,9 @@
 
   <!-- Left barcode strip -->
   <div class="bc-strip">
-    <div class="bc-stripes"></div>
-    <svg id="barcode" class="bc-barcode"></svg>
+    <div class="bc-barcode-wrap" id="bc-wrap">
+      <svg id="barcode"></svg>
+    </div>
     <span class="bc-label">FAW0004</span>
   </div>
 
@@ -370,12 +377,23 @@
 <script>
   JsBarcode('#barcode', 'FAW0004', {
     format:       'CODE128',
-    width:        1.2,
-    height:       38,
+    width:        1.6,   // bar module width → controls barcode length (= visual height after rotation)
+    height:       28,    // px → becomes visual width after rotation (~7mm, fits in 15mm strip)
     displayValue: false,
-    margin:       0,
+    margin:       2,
     background:   'transparent'
   });
+
+  // After rotation the SVG occupies: width=height_param, height=svg_width
+  // Set wrapper to those dimensions so layout flows correctly
+  (function() {
+    const svg  = document.getElementById('barcode');
+    const wrap = document.getElementById('bc-wrap');
+    const svgW = svg.getBoundingClientRect().width  || svg.width.baseVal.value;
+    const svgH = svg.getBoundingClientRect().height || svg.height.baseVal.value;
+    wrap.style.width  = svgH + 'px';   // visual width after rotation
+    wrap.style.height = svgW + 'px';   // visual height after rotation
+  })();
 
   function scaleA4() {
     const a4      = document.getElementById('a4');
