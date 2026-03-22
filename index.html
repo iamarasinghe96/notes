@@ -66,9 +66,9 @@
     }
 
 
-    /* Barcode on top, FAW0004 centered below it */
+    /* Barcode on left, FAW0004 runs down alongside it on the right */
     .bc-code-group {
-      display: flex; flex-direction: column; align-items: center;
+      display: flex; flex-direction: row; align-items: flex-start;
       margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
     }
     /* Wrapper sized to visual (rotated) dimensions by JS */
@@ -87,7 +87,7 @@
     .bc-label {
       font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
       writing-mode: vertical-rl; transform: rotate(180deg);
-      white-space: nowrap; margin-top: 2mm;
+      white-space: nowrap; margin-left: 1mm;
     }
     .bc-store-order {
       font: 5pt Arial,sans-serif; color: #444;
@@ -274,9 +274,9 @@
 <div id="toolbar">
   <div class="t-brand">
     <svg viewBox="0 0 200 200" fill="none">
-      <circle cx="126" cy="78"  r="72" stroke="#E5332A" stroke-width="9"/>
-      <ellipse cx="76" cy="125" rx="84" ry="37" transform="rotate(-34 76 125)" stroke="#2256A7" stroke-width="9"/>
-      <circle cx="88"  cy="158" r="52" stroke="#2DA44E" stroke-width="9"/>
+      <circle cx="126" cy="78"  r="72" stroke="#333" stroke-width="9"/>
+      <ellipse cx="76" cy="125" rx="84" ry="37" transform="rotate(-34 76 125)" stroke="#333" stroke-width="9"/>
+      <circle cx="88"  cy="158" r="52" stroke="#333" stroke-width="9"/>
     </svg>
     <div>
       <div class="t-title">Albury Wodonga Health</div>
