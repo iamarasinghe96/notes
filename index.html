@@ -8,17 +8,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Toolbar ──────────────────────────────────────────────── */
+    /* Line height shared by all ruled elements */
+    :root { --lh: 28px; }
+
+    /* ── Toolbar ──────────────────────────────────────────────────── */
     #toolbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
       background: #fff;
       border-bottom: 3px solid #5BBD2E;
       padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
     }
     .t-logo { display: flex; align-items: center; gap: 8px; }
     .t-logo svg { width: 34px; height: 34px; flex-shrink: 0; }
@@ -26,229 +25,204 @@
     .t-sub   { font: 0.68rem/1 system-ui, sans-serif; color: #666; }
     .spacer  { flex: 1; }
     .btn-pdf {
-      background: #5BBD2E;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 14px;
+      background: #5BBD2E; color: #fff; border: none;
+      border-radius: 8px; padding: 8px 14px;
       font: 700 0.82rem system-ui, sans-serif;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap; -webkit-tap-highlight-color: transparent;
     }
     .btn-pdf:active { opacity: 0.75; }
 
-    /* ── Page background ──────────────────────────────────────── */
-    body { background: #9e9e9e; }
+    /* ── Page background ──────────────────────────────────────────── */
+    body { background: #888; }
 
-    /* ── Wrapper that accommodates the scaled A4 ─────────────── */
     .a4-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      display: flex; justify-content: center; align-items: flex-start;
       padding: 14px 0 40px;
-      /* height overridden by JS so page doesn't collapse */
     }
 
-    /* ── The A4 page ──────────────────────────────────────────── */
+    /* ── A4 page ──────────────────────────────────────────────────── */
     .a4 {
-      width: 210mm;
-      min-height: 297mm;
+      width: 210mm; min-height: 297mm;
       background: #fff;
       position: relative;
       display: flex;
       transform-origin: top center;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.45);
       flex-shrink: 0;
     }
 
-    /* ── Left barcode strip ───────────────────────────────────── */
+    /* ── Left barcode strip (outside main box) ────────────────────── */
     .bc-strip {
-      width: 15mm;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 4mm;
-      gap: 2mm;
-      overflow: hidden;
+      width: 18mm; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      align-items: center; padding-top: 5mm;
     }
-    /* Striped block at top of strip */
+    /* Green block stripes */
     .bc-stripes {
-      width: 12mm;
-      height: 55mm;
+      width: 13mm; height: 52mm;
       background: repeating-linear-gradient(
         to bottom,
-        #5BBD2E 0mm, #5BBD2E 3.5mm,
-        #fff    3.5mm, #fff  5mm
+        #5BBD2E 0, #5BBD2E 4mm,
+        #fff    4mm, #fff  6mm
       );
     }
-    .bc-code {
-      transform: rotate(90deg);
-      margin-top: 4mm;
-    }
+    .bc-code  { transform: rotate(90deg); margin-top: 6mm; }
     .bc-label {
-      font: bold 5.5pt Arial, sans-serif;
-      letter-spacing: 0.05em;
+      font: bold 6pt Arial, sans-serif;
+      letter-spacing: 0.04em;
       transform: rotate(90deg);
       white-space: nowrap;
-      margin-top: 14mm;
+      margin-top: 16mm;
     }
 
-    /* ── Green right tab ──────────────────────────────────────── */
+    /* ── Green right tab (outside main box) ──────────────────────── */
     .green-tab {
-      position: absolute;
-      right: 0; top: 0; bottom: 0;
-      width: 15mm;
-      background: #5BBD2E;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 18mm; background: #5BBD2E;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
     }
     .tab-title {
-      color: #fff;
-      font: 700 7.5pt Arial, sans-serif;
+      color: #fff; font: 700 8pt Arial, sans-serif;
       letter-spacing: 0.1em;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      margin-bottom: 30mm;
+      writing-mode: vertical-rl; transform: rotate(180deg);
+      margin-bottom: 35mm;
     }
     .tab-mr4 {
-      color: #fff;
-      font: 700 8pt Arial, sans-serif;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      position: absolute;
-      bottom: 8mm;
+      color: #fff; font: 700 9pt Arial, sans-serif;
+      writing-mode: vertical-rl; transform: rotate(180deg);
+      position: absolute; bottom: 8mm;
     }
 
-    /* ── Content column ───────────────────────────────────────── */
-    .content {
-      flex: 1;
-      margin-right: 15mm;
-      padding: 5mm 2mm 4mm 1mm;
-      display: flex;
-      flex-direction: column;
+    /* ── Main form box ────────────────────────────────────────────── */
+    .form-box {
+      flex: 1; margin-right: 18mm;
+      padding: 5mm 2mm 4mm 0;
+      display: flex; flex-direction: column;
     }
 
-    /* ── Header block ─────────────────────────────────────────── */
+    /* outer border wraps header + subheader + notes + footer lines */
+    .outer-border {
+      border: 1pt solid #333;
+      flex: 1; display: flex; flex-direction: column;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
     .hdr {
-      border: 0.8pt solid #000;
       display: flex;
-      min-height: 40mm;
+      border-bottom: 1pt solid #333;
+      min-height: 38mm;
     }
-    /* Left panel */
     .hdr-left {
-      flex: 0 0 42%;
-      border-right: 0.8pt solid #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 3mm 2mm 2mm;
+      flex: 0 0 46%;
+      border-right: 1pt solid #333;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: space-between;
+      padding: 3mm 3mm 2mm;
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 2mm;
-      align-self: flex-start;
-    }
-    .brand svg  { width: 13mm; height: 13mm; }
-    .brand-name { font: 700 7pt Arial, sans-serif; line-height: 1.5; }
-    .form-title { font: 900 11pt Arial, sans-serif; align-self: center; }
+    .brand { display: flex; align-items: center; gap: 2.5mm; align-self: flex-start; }
+    .brand svg  { width: 14mm; height: 14mm; }
+    .brand-name { font: 700 8pt Arial, sans-serif; line-height: 1.5; }
+    .form-title { font: 900 13pt Arial, sans-serif; }
 
-    /* Right panel — patient ID */
     .hdr-right {
-      flex: 1;
-      padding: 2mm 3mm;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8mm;
+      flex: 1; padding: 2mm 3mm;
+      display: flex; flex-direction: column; gap: 0;
     }
-    .pid-note {
-      font: 6pt Arial, sans-serif;
-      color: #333;
-      margin-bottom: 1mm;
-    }
+    .pid-note { font: 6.5pt Arial, sans-serif; color: #333; margin-bottom: 2mm; }
+
+    /* Each patient field row uses a dotted underline like the physical form */
     .pid-row {
-      display: flex;
-      align-items: flex-end;
-      min-height: 6.5mm;
-      border-bottom: 0.5pt solid #999;
+      display: flex; align-items: baseline;
+      padding: 1mm 0;
+      border-bottom: 0.6pt dotted #999;
+      min-height: 7mm;
     }
     .pid-row:last-child { border-bottom: none; }
-    .pid-lbl { font: 7pt Arial, sans-serif; white-space: nowrap; padding-bottom: 0.8mm; min-width: 20mm; }
+    .pid-lbl { font: 8pt Arial, sans-serif; white-space: nowrap; min-width: 22mm; }
     .pid-row input {
-      flex: 1;
-      border: none;
-      outline: none;
+      flex: 1; border: none; outline: none;
       font: 8pt Arial, sans-serif;
-      padding: 0 1mm 0.8mm;
-      background: transparent;
+      background: transparent; padding: 0 1mm;
       min-width: 0;
     }
-    .pid-row input:focus { background: rgba(91,189,46,0.08); }
-    .pid-dob { flex: 0 0 52% !important; }
+    .pid-dob { flex: 0 0 50% !important; }
+    .pid-row input:focus { background: rgba(91,189,46,0.07); }
 
-    /* ── Sub-header ───────────────────────────────────────────── */
+    /* ── Sub-header row ───────────────────────────────────────────── */
     .subhdr {
-      border: 0.8pt solid #000;
-      border-top: none;
       display: flex;
-      height: 7mm;
-      align-items: center;
+      border-bottom: 1pt solid #333;
+      min-height: 8mm; align-items: center;
     }
     .sh-dt {
-      width: 23mm;
-      flex-shrink: 0;
-      border-right: 0.8pt solid #000;
-      font: 700 7pt Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+      width: 30mm; flex-shrink: 0;
+      border-right: 1pt solid #333;
+      font: 700 8pt Arial, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; padding: 1mm;
     }
     .sh-notes {
-      flex: 1;
-      font: 700 5.8pt Arial, sans-serif;
-      text-align: center;
-      line-height: 1.3;
-      padding: 0 2mm;
+      flex: 1; font: 700 7pt Arial, sans-serif;
+      text-align: center; padding: 0 2mm; line-height: 1.3;
     }
 
-    /* ── Notes body ───────────────────────────────────────────── */
-    .notes-body {
-      border: 0.8pt solid #000;
-      border-top: none;
-      flex: 1;
-      display: flex;
+    /* ── Notes area with ruled lines ──────────────────────────────── */
+    .notes-area {
+      flex: 1; display: flex;
+      /* ruled lines as background — drawn every --lh pixels */
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--lh) - 1px),
+        #bbb       calc(var(--lh) - 1px),
+        #bbb       var(--lh)
+      );
+      background-size: 100% var(--lh);
+      /* vertical divider between Date/Time and Notes columns */
+      position: relative;
     }
-    .notes-body textarea {
-      flex: 1;
-      border: none;
-      outline: none;
-      resize: none;
-      font: 9pt/1.6 Arial, sans-serif;
-      padding: 2mm 2mm;
+
+    /* Vertical divider line between dt and notes columns */
+    .notes-area::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 30mm;
+      width: 1pt;
+      background: #333;
+      pointer-events: none;
+    }
+
+    .col-dt, .col-notes {
+      /* both textareas share same line-height so ruled lines align */
+      height: 100%;
+    }
+    .col-dt    { width: 30mm; flex-shrink: 0; }
+    .col-notes { flex: 1; }
+
+    textarea {
+      width: 100%; height: 100%;
+      border: none; outline: none; resize: none;
+      font: 9pt/var(--lh) Arial, sans-serif;
       background: transparent;
-      width: 100%;
-      /* Vertically fill remaining space */
-      min-height: 180mm;
+      padding: 1px 3px 0;   /* top 1px nudges text to sit above each rule */
+      -webkit-appearance: none;
+      /* make background scroll with text so lines stay aligned */
+      background-attachment: local;
+      min-height: 170mm;
     }
+    textarea:focus { background-color: rgba(91,189,46,0.04); }
 
-    /* ── Footer ───────────────────────────────────────────────── */
+    /* ── Footer ───────────────────────────────────────────────────── */
     .footer {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 2mm;
-      font: 5.5pt Arial, sans-serif;
-      color: #444;
+      display: flex; justify-content: space-between;
+      padding: 2mm 1mm 0;
+      font: 5.5pt Arial, sans-serif; color: #444;
     }
 
-    /* ── Print ────────────────────────────────────────────────── */
+    /* ── Print ────────────────────────────────────────────────────── */
     @media print {
       @page { size: A4 portrait; margin: 0; }
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -258,9 +232,9 @@
       .a4 {
         transform: none !important;
         box-shadow: none !important;
-        width: 210mm !important;
-        min-height: 297mm !important;
+        width: 210mm !important; min-height: 297mm !important;
       }
+      textarea { background-color: transparent !important; }
     }
   </style>
 </head>
@@ -301,64 +275,72 @@
     <span class="bc-label">FAW0004</span>
   </div>
 
-  <!-- Content -->
-  <div class="content">
+  <!-- Main form box -->
+  <div class="form-box">
+    <div class="outer-border">
 
-    <!-- Header -->
-    <div class="hdr">
-      <div class="hdr-left">
-        <div class="brand">
-          <svg viewBox="0 0 60 60" fill="none">
-            <circle cx="30" cy="18" r="13" stroke="#111" stroke-width="3.5"/>
-            <circle cx="19" cy="40" r="13" stroke="#111" stroke-width="3.5"/>
-            <circle cx="41" cy="40" r="13" stroke="#111" stroke-width="3.5"/>
-          </svg>
-          <div class="brand-name">Albury<br/>Wodonga<br/>Health</div>
+      <!-- Header -->
+      <div class="hdr">
+        <div class="hdr-left">
+          <div class="brand">
+            <svg viewBox="0 0 60 60" fill="none">
+              <circle cx="30" cy="18" r="13" stroke="#111" stroke-width="3.5"/>
+              <circle cx="19" cy="40" r="13" stroke="#111" stroke-width="3.5"/>
+              <circle cx="41" cy="40" r="13" stroke="#111" stroke-width="3.5"/>
+            </svg>
+            <div class="brand-name">Albury<br/>Wodonga<br/>Health</div>
+          </div>
+          <div class="form-title">PROGRESS NOTES</div>
         </div>
-        <div class="form-title">PROGRESS NOTES</div>
+
+        <div class="hdr-right">
+          <div class="pid-note">(Affix Patient Identification Label here)</div>
+          <div class="pid-row">
+            <span class="pid-lbl">UR No:</span>
+            <input type="text" autocomplete="off" inputmode="text"/>
+          </div>
+          <div class="pid-row">
+            <span class="pid-lbl">Surname:</span>
+            <input type="text" autocomplete="family-name"/>
+          </div>
+          <div class="pid-row">
+            <span class="pid-lbl">Given Names:</span>
+            <input type="text" autocomplete="given-name"/>
+          </div>
+          <div class="pid-row">
+            <span class="pid-lbl">Date of Birth:</span>
+            <input type="text" class="pid-dob" inputmode="numeric" placeholder="DD/MM/YYYY"/>
+            <span class="pid-lbl" style="min-width:8mm;">Sex:</span>
+            <input type="text"/>
+          </div>
+        </div>
+      </div><!-- /.hdr -->
+
+      <!-- Sub-header -->
+      <div class="subhdr">
+        <div class="sh-dt">Date/Time</div>
+        <div class="sh-notes">Please sign each entry and print surname and designation</div>
       </div>
-      <div class="hdr-right">
-        <div class="pid-note">(Affix Patient Identification Label here)</div>
-        <div class="pid-row">
-          <span class="pid-lbl">UR No:</span>
-          <input type="text" autocomplete="off" inputmode="text"/>
+
+      <!-- Notes area: two columns, ruled lines as background -->
+      <div class="notes-area">
+        <div class="col-dt">
+          <textarea aria-label="Date/Time" spellcheck="false"></textarea>
         </div>
-        <div class="pid-row">
-          <span class="pid-lbl">Surname:</span>
-          <input type="text" autocomplete="family-name"/>
-        </div>
-        <div class="pid-row">
-          <span class="pid-lbl">Given Names:</span>
-          <input type="text" autocomplete="given-name"/>
-        </div>
-        <div class="pid-row">
-          <span class="pid-lbl">Date of Birth:</span>
-          <input type="text" class="pid-dob" inputmode="numeric" placeholder="DD/MM/YYYY"/>
-          <span class="pid-lbl" style="min-width:7mm;">Sex:</span>
-          <input type="text"/>
+        <div class="col-notes">
+          <textarea aria-label="Progress notes" spellcheck="true"></textarea>
         </div>
       </div>
-    </div>
 
-    <!-- Sub-header -->
-    <div class="subhdr">
-      <div class="sh-dt">Date/Time</div>
-      <div class="sh-notes">Please sign each entry and print surname and designation</div>
-    </div>
+    </div><!-- /.outer-border -->
 
-    <!-- Notes writing area -->
-    <div class="notes-body">
-      <textarea placeholder="Type your progress notes here…" spellcheck="true"></textarea>
-    </div>
-
-    <!-- Footer -->
+    <!-- Footer (outside outer border) -->
     <div class="footer">
       <span>Version 1.0 &nbsp; March 2021</span>
       <span>Store Order No.: 90083</span>
       <strong>Please turn over</strong>
     </div>
-
-  </div><!-- /.content -->
+  </div><!-- /.form-box -->
 
   <!-- Green right tab -->
   <div class="green-tab">
@@ -370,35 +352,27 @@
 </div><!-- /.a4-wrapper -->
 
 <script>
-  // Barcode
   JsBarcode('#barcode', 'FAW0004', {
-    format: 'CODE128', width: 1.3, height: 44,
+    format: 'CODE128', width: 1.3, height: 42,
     displayValue: false, margin: 0, background: 'transparent'
   });
 
-  // Scale A4 to fit viewport width
   function scaleA4() {
     const a4      = document.getElementById('a4');
     const wrapper = document.getElementById('wrapper');
-    // Reset so we can measure natural size
     a4.style.transform = '';
-    const naturalW = a4.offsetWidth;   // ~794px
+    const naturalW = a4.offsetWidth;
     const naturalH = a4.offsetHeight;
-    const vw = window.innerWidth;
-    const scale = Math.min(vw / naturalW, 1);
-    if (scale < 1) {
-      a4.style.transform = `scale(${scale})`;
-    }
-    // Set wrapper height so the page scrolls correctly
+    const scale    = Math.min(window.innerWidth / naturalW, 1);
+    if (scale < 1) a4.style.transform = `scale(${scale})`;
     wrapper.style.height = (naturalH * scale + 56) + 'px';
   }
 
   scaleA4();
   window.addEventListener('resize', scaleA4);
-  // Re-scale after textarea grows (typing)
-  document.querySelector('textarea').addEventListener('input', () => {
-    setTimeout(scaleA4, 0);
-  });
+  document.querySelectorAll('textarea').forEach(ta =>
+    ta.addEventListener('input', () => setTimeout(scaleA4, 0))
+  );
 </script>
 
 </body>
