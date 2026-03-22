@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Progress Notes – FAW0004 | Albury Wodonga Health</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background: #fff;
+      border-bottom: 4px solid #5BBD2E;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    header p {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: #5BBD2E;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    main {
+      width: 100%;
+      max-width: 680px;
+      padding: 24px 16px 40px;
+      flex: 1;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      background: #5BBD2E;
+      color: #fff;
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { opacity: 0.82; }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .btn-secondary {
+      background: #f0f4f8;
+      color: #1a1a2e;
+      border: 1.5px solid #d0d7de;
+    }
+
+    .btn svg { flex-shrink: 0; }
+
+    .info-list {
+      list-style: none;
+      padding: 0;
+    }
+    .info-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 0.85rem;
+      color: #444;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .info-list li:last-child { border-bottom: none; }
+    .info-list .icon {
+      font-size: 1rem;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .embed-wrapper {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background: #888;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .embed-wrapper embed,
+    .embed-wrapper iframe {
+      width: 100%;
+      height: 75vh;
+      min-height: 480px;
+      border: none;
+      display: block;
+    }
+
+    .fallback {
+      display: none;
+      padding: 24px;
+      text-align: center;
+      background: #f8f8f8;
+      width: 100%;
+    }
+    .fallback p { font-size: 0.85rem; color: #555; margin-bottom: 14px; }
+
+    footer {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #999;
+      padding: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .embed-wrapper embed,
+      .embed-wrapper iframe { height: 82vh; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <!-- SVG approximation of AWH triple-ring logo -->
+  <svg class="logo" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22"   cy="13"  r="9" stroke="#111" stroke-width="2.4" fill="none"/>
+    <circle cx="14.5" cy="29"  r="9" stroke="#111" stroke-width="2.4" fill="none"/>
+    <circle cx="29.5" cy="29"  r="9" stroke="#111" stroke-width="2.4" fill="none"/>
+  </svg>
+  <div>
+    <h1>Albury Wodonga Health</h1>
+    <p>Progress Notes · FAW0004</p>
+  </div>
+  <span class="badge">MR4</span>
+</header>
+
+<main>
+
+  <!-- Action buttons -->
+  <div class="card">
+    <div class="card-header">Open Fillable PDF</div>
+    <div class="card-body">
+      <a class="btn btn-primary" href="progress_notes_FAW0004.pdf" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="18" x2="12" y2="12"/>
+          <polyline points="9 15 12 18 15 15"/>
+        </svg>
+        Open &amp; Fill PDF
+      </a>
+      <a class="btn btn-secondary" href="progress_notes_FAW0004.pdf" download="ProgressNotes_FAW0004.pdf">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download to Device
+      </a>
+    </div>
+  </div>
+
+  <!-- Inline preview -->
+  <div class="card">
+    <div class="card-header">Preview</div>
+    <div class="card-body" style="padding: 0;">
+      <div class="embed-wrapper">
+        <embed
+          src="progress_notes_FAW0004.pdf#toolbar=1&navpanes=0&scrollbar=1&view=FitH"
+          type="application/pdf"
+          title="Progress Notes FAW0004"
+          onerror="this.style.display='none'; document.getElementById('fallback').style.display='flex';"
+        />
+        <div class="fallback" id="fallback">
+          <p>Your browser doesn't support inline PDF preview.<br/>
+             Use the button above to open or download the form.</p>
+          <a class="btn btn-primary" href="progress_notes_FAW0004.pdf" style="max-width:260px;">
+            Open PDF
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="card">
+    <div class="card-header">How to use</div>
+    <div class="card-body">
+      <ul class="info-list">
+        <li><span class="icon">📱</span> Open the PDF in <strong>Adobe Acrobat</strong> or any PDF app that supports fillable forms</li>
+        <li><span class="icon">✏️</span> Tap any field to type — Date/Time column and Notes rows are all fillable</li>
+        <li><span class="icon">💾</span> Save a filled copy to your device or share via email / messaging</li>
+        <li><span class="icon">🖨️</span> Print directly from your PDF viewer for a physical copy</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer>Version 1.0 · March 2021 · Store Order No. 90083 · Albury Wodonga Health</footer>
+
+</body>
+</html>
