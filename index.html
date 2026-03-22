@@ -66,21 +66,19 @@
     }
 
 
-    /* Vertical barcode wrapper — reserves the rotated element's layout space */
+    /* Vertical barcode wrapper — sized to visual (rotated) dimensions by JS */
     .bc-barcode-wrap {
       position: relative;
-      /* width = barcode height param (visual width after rotation) */
-      /* height set by JS after generation */
-      margin-top: calc(var(--hdr-h) + var(--subh-h) + var(--pg-top) + 4mm);
-      overflow: visible;
+      /* width + height set by JS; margin positions it beside the notes area */
+      margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
     }
-    /* rotate(90deg) translateY(-100%) pivoted at top-left
-       makes bars run left-to-right (vertical barcode appearance)
-       and positions element correctly without overflowing */
+    /* SVG is absolute so the wrapper owns its own dimensions;
+       transform pivots at top-left so element ends up in positive space */
     #barcode {
-      display: block;
-      transform: rotate(90deg) translateY(-100%);
+      position: absolute;
+      top: 0; left: 0;
       transform-origin: top left;
+      /* transform set precisely by JS using actual pixel dimensions */
     }
     .bc-label {
       font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
@@ -384,16 +382,23 @@
     background:   'transparent'
   });
 
-  // After rotation the SVG occupies: width=height_param, height=svg_width
-  // Set wrapper to those dimensions so layout flows correctly
-  (function() {
+  // SVG is absolute — size the wrapper to the VISUAL (post-rotation) dimensions,
+  // then apply the exact pixel transform so bars run left→right (vertical look).
+  requestAnimationFrame(function() {
     const svg  = document.getElementById('barcode');
     const wrap = document.getElementById('bc-wrap');
-    const svgW = svg.getBoundingClientRect().width  || svg.width.baseVal.value;
-    const svgH = svg.getBoundingClientRect().height || svg.height.baseVal.value;
-    wrap.style.width  = svgH + 'px';   // visual width after rotation
-    wrap.style.height = svgW + 'px';   // visual height after rotation
-  })();
+    const r    = svg.getBoundingClientRect();
+    const svgW = r.width;   // original width  (→ visual HEIGHT after rotation)
+    const svgH = r.height;  // original height (→ visual WIDTH  after rotation)
+
+    // rotate(90deg) around top-left, then pull up by original height
+    // result: element occupies x:0→svgH, y:0→svgW (correct portrait block)
+    svg.style.transform = `rotate(90deg) translateY(-${svgH}px)`;
+
+    // Wrapper takes the visual (rotated) dimensions so layout flows correctly
+    wrap.style.width  = svgH + 'px';
+    wrap.style.height = svgW + 'px';
+  });
 
   function scaleA4() {
     const a4      = document.getElementById('a4');
