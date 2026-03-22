@@ -416,6 +416,14 @@
     wrap.style.height = svgW + 'px';
   });
 
+  // Auto-insert slashes for DD/MM/YYYY as user types
+  document.querySelector('input[inputmode="numeric"]').addEventListener('input', function(e) {
+    let v = this.value.replace(/\D/g, '').slice(0, 8); // digits only, max 8
+    if (v.length > 4) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
+    else if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+    this.value = v;
+  });
+
   function scaleA4() {
     const a4      = document.getElementById('a4');
     const wrapper = document.getElementById('wrapper');
