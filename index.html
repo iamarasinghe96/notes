@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Progress Notes – AWH</title>
 <style>
   /* ── ALIGNMENT KNOBS ────────────────────────────────────────────────────
@@ -34,7 +34,16 @@
     flex-direction: column;
     align-items: center;
     gap: 12mm;
-    padding: 12mm 0 24mm;
+    padding: 0 0 24mm;
+  }
+
+  /* Scale A4 pages to fit viewport width on small screens */
+  @media (max-width: 220mm) {
+    .page {
+      transform-origin: top center;
+      transform: scale(calc(100vw / 210mm));
+      margin-bottom: calc((100vw / 210mm - 1) * 297mm);
+    }
   }
 
   .page {
@@ -163,28 +172,29 @@
 
   /* ── ACTION BUTTONS ─────────────────────────────────────────────────── */
   .action-btns {
-    position: absolute;
-    top: 118mm;
-    left: -17mm;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
-    flex-direction: column;
-    gap: 8mm;
+    flex-direction: row;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #666;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .action-btns button {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
-    width: 14mm;
-    height: 52mm;
+    writing-mode: horizontal-tb;
+    transform: none;
+    width: auto;
+    height: 44px;
+    flex: 1;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font: bold 8pt Arial, sans-serif;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font: bold 13px Arial, sans-serif;
+    letter-spacing: 0.3px;
   }
 
   #btn-pdf   { background: #1a73e8; color: #fff; }
@@ -202,12 +212,13 @@
 </head>
 <body>
 
+<div class="action-btns">
+  <button id="btn-pdf"   onclick="window.print()">⬇ Download PDF</button>
+  <button id="btn-clear" onclick="clearData()">✕ Clear All</button>
+</div>
+
 <!-- ═══════════════════════════  PAGE 1  ═══════════════════════════ -->
 <div class="page page-1">
-  <div class="action-btns">
-    <button id="btn-pdf"   onclick="window.print()">Download PDF</button>
-    <button id="btn-clear" onclick="clearData()">Clear All</button>
-  </div>
   <div class="patient-id">
     <div class="pid-row">
       <input type="text" aria-label="UR No">
