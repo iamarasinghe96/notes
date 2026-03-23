@@ -6,13 +6,14 @@
 <title>Progress Notes – AWH</title>
 <style>
   /* ── ALIGNMENT KNOBS ────────────────────────────────────────────────────
-     Tune these with the on-screen panel, then paste the values here and
-     remove the #controls block.                                            */
+     Tune with the panel below, then paste the :root block here and
+     delete the #controls div + its <script> block.                        */
   :root {
-    --table-top:        52mm;   /* distance from top of page to table header */
-    --date-col-width:   28mm;   /* width of Date/Time column                 */
-    --notes-col-width: 148mm;   /* width of Notes column                     */
-    --row-height:        7mm;   /* height of every row (header + data rows)  */
+    --table-top:        52mm;   /* top edge of table from top of page      */
+    --table-left:        0mm;   /* left edge of table from left of page    */
+    --date-col-width:   28mm;   /* width of Date/Time column               */
+    --notes-col-width: 148mm;   /* width of Notes column                   */
+    --row-height:        7mm;   /* height of every row incl. header        */
   }
 
   /* ── PAGE SETUP ─────────────────────────────────────────────────────── */
@@ -28,26 +29,26 @@
     padding: 12mm 0 24mm;
   }
 
-  /* A4 page shell */
   .page {
     position: relative;
     width:  210mm;
     height: 297mm;
-    background: #fff;          /* white during alignment */
+    background: #fff;
     background-size: 100% 100%;
     background-position: top left;
     background-repeat: no-repeat;
     box-shadow: 0 4px 16px #0006;
   }
-  /* PNG backgrounds – injected via JS from assets/backgrounds.js */
-  body.show-bg .page-1 { background-image: var(--bg-page1); }
-  body.show-bg .page-2 { background-image: var(--bg-page2); }
+
+  /* PNG backgrounds applied only when show-bg toggle is on */
+  body.show-bg .page-1 { background-image: var(--bg-page1, none); }
+  body.show-bg .page-2 { background-image: var(--bg-page2, none); }
 
   /* ── TABLE OVERLAY ───────────────────────────────────────────────────── */
   .overlay-table {
     position: absolute;
     top:  var(--table-top);
-    left: 0;
+    left: var(--table-left);
     width: calc(var(--date-col-width) + var(--notes-col-width));
     border-collapse: collapse;
     table-layout: fixed;
@@ -56,7 +57,7 @@
   .overlay-table th,
   .overlay-table td {
     height:  var(--row-height);
-    border:  0.5pt solid #000;
+    border:  1px solid #000;        /* 1px – always visible on screen */
     padding: 0 1.5mm;
     vertical-align: middle;
     overflow: hidden;
@@ -69,7 +70,7 @@
   .overlay-table thead th {
     font: 700 6.5pt Arial, sans-serif;
     text-align: center;
-    background: #fff8;
+    background: rgba(255,255,255,0.6);
   }
 
   .overlay-table tbody td input {
@@ -82,44 +83,59 @@
     outline: none;
   }
 
-  /* ── ALIGNMENT CONTROL PANEL (remove when done) ─────────────────────── */
+  /* ── ALIGNMENT CONTROL PANEL ─────────────────────────────────────────── */
   #controls {
     position: fixed;
     bottom: 12px;
     right:  12px;
     z-index: 999;
     background: #ffffffe8;
-    border: 1px solid #999;
+    border: 1px solid #aaa;
     border-radius: 8px;
-    padding: 10px 14px;
+    padding: 10px 14px 12px;
     font: 12px Arial, sans-serif;
     box-shadow: 0 2px 12px #0004;
-    min-width: 270px;
+    min-width: 300px;
   }
   #controls h3 {
     font-size: 13px;
     margin-bottom: 8px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ddd;
     padding-bottom: 4px;
   }
   .ctrl-row {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
-  .ctrl-row label { flex: 0 0 145px; font-size: 11px; }
-  .ctrl-row input[type=range] { flex: 1; }
-  .ctrl-row .val {
-    flex: 0 0 36px;
-    text-align: right;
+  .ctrl-row label {
+    flex: 0 0 155px;
     font-size: 11px;
-    font-family: monospace;
   }
+  .ctrl-row input[type=range] {
+    flex: 1;
+    accent-color: #1a73e8;
+  }
+  .ctrl-row .val {
+    flex: 0 0 40px;
+    text-align: right;
+    font: 11px/1 monospace;
+    color: #1a73e8;
+    font-weight: bold;
+  }
+  .ctrl-row-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+    font-size: 11px;
+  }
+  .ctrl-row-check input { width: 15px; height: 15px; cursor: pointer; }
   #copy-btn {
     margin-top: 8px;
     width: 100%;
-    padding: 5px;
+    padding: 6px;
     font-size: 12px;
     cursor: pointer;
     background: #1a73e8;
@@ -140,6 +156,7 @@
     body { background: none; padding: 0; gap: 0; }
     .page { box-shadow: none; page-break-after: always; }
     #controls { display: none; }
+    .overlay-table th, .overlay-table td { border-color: #000; }
   }
 </style>
 </head>
@@ -184,39 +201,46 @@
   <h3>Table Alignment Tool</h3>
 
   <div class="ctrl-row">
-    <label>Table top offset (mm)</label>
-    <input type="range" id="s-top"   min="30" max="100" step="0.5" value="52">
+    <label>↕ Top offset (mm)</label>
+    <input type="range" id="s-top"   min="30"  max="120" step="0.5"  value="52">
     <span class="val" id="v-top">52</span>
   </div>
   <div class="ctrl-row">
+    <label>↔ Left offset (mm)</label>
+    <input type="range" id="s-left"  min="-10" max="30"  step="0.5"  value="0">
+    <span class="val" id="v-left">0</span>
+  </div>
+  <div class="ctrl-row">
     <label>Date/Time col width (mm)</label>
-    <input type="range" id="s-date"  min="15" max="60"  step="0.5" value="28">
+    <input type="range" id="s-date"  min="15"  max="60"  step="0.5"  value="28">
     <span class="val" id="v-date">28</span>
   </div>
   <div class="ctrl-row">
     <label>Notes col width (mm)</label>
-    <input type="range" id="s-notes" min="80" max="185" step="0.5" value="148">
+    <input type="range" id="s-notes" min="80"  max="200" step="0.5"  value="148">
     <span class="val" id="v-notes">148</span>
   </div>
   <div class="ctrl-row">
     <label>Row height (mm)</label>
-    <input type="range" id="s-row"   min="4"  max="12"  step="0.25" value="7">
+    <input type="range" id="s-row"   min="4"   max="12"  step="0.25" value="7">
     <span class="val" id="v-row">7</span>
   </div>
 
-  <div class="ctrl-row" style="margin-top:8px;">
-    <label style="flex:0 0 auto;">Show PNG background</label>
-    <input type="checkbox" id="toggle-bg" style="width:16px;height:16px;cursor:pointer;">
+  <div class="ctrl-row-check">
+    <input type="checkbox" id="toggle-bg">
+    <label for="toggle-bg">Show PNG background</label>
   </div>
 
   <button id="copy-btn">Copy CSS values</button>
   <div id="copied-msg">Copied to clipboard!</div>
 </div>
 
+<!-- base64 backgrounds (edit assets/backgrounds.js to fill in your PNGs) -->
 <script src="assets/backgrounds.js"></script>
 <script>
-  // Apply base64 backgrounds as CSS variables (if placeholders have been replaced)
   const root = document.documentElement;
+
+  // Apply base64 backgrounds if placeholders have been replaced
   if (typeof PAGE1_B64 !== 'undefined' && !PAGE1_B64.startsWith('PASTE')) {
     root.style.setProperty('--bg-page1', `url(data:image/png;base64,${PAGE1_B64})`);
   }
@@ -224,7 +248,7 @@
     root.style.setProperty('--bg-page2', `url(data:image/png;base64,${PAGE2_B64})`);
   }
 
-  // Generate 35 data rows for a given tbody
+  // Build 35 data rows per page
   function buildRows(tbodyId) {
     const tbody = document.getElementById(tbodyId);
     for (let i = 0; i < 35; i++) {
@@ -238,29 +262,30 @@
   buildRows('body1');
   buildRows('body2');
 
-  // Live alignment sliders
-  const root = document.documentElement;
+  // Live slider → CSS variable wiring
   const knobs = [
     { id: 's-top',   val: 'v-top',   css: '--table-top',       unit: 'mm' },
+    { id: 's-left',  val: 'v-left',  css: '--table-left',      unit: 'mm' },
     { id: 's-date',  val: 'v-date',  css: '--date-col-width',  unit: 'mm' },
     { id: 's-notes', val: 'v-notes', css: '--notes-col-width', unit: 'mm' },
     { id: 's-row',   val: 'v-row',   css: '--row-height',      unit: 'mm' },
   ];
+
   knobs.forEach(({ id, val, css, unit }) => {
     const slider = document.getElementById(id);
-    const label  = document.getElementById(val);
+    const display = document.getElementById(val);
     slider.addEventListener('input', () => {
-      label.textContent = slider.value;
+      display.textContent = slider.value;
       root.style.setProperty(css, slider.value + unit);
     });
   });
 
-  // Toggle PNG background on/off
-  document.getElementById('toggle-bg').addEventListener('change', function() {
+  // PNG background toggle
+  document.getElementById('toggle-bg').addEventListener('change', function () {
     document.body.classList.toggle('show-bg', this.checked);
   });
 
-  // Copy current values as CSS snippet
+  // Copy current CSS values to clipboard
   document.getElementById('copy-btn').addEventListener('click', () => {
     const lines = knobs.map(({ id, css, unit }) =>
       `    ${css}: ${document.getElementById(id).value}${unit};`
