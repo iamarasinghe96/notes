@@ -529,21 +529,38 @@
           ctx.drawImage(bgImg, 0, 0, W, H);
         }
 
-        // 1b. Draw white fill rectangles over patient-ID input areas so the
-        //     background template dots are hidden before we overlay typed text.
-        //     html2canvas does not reliably render background-color on <input>
-        //     elements, so we paint the white areas directly onto the canvas.
-        ctx.fillStyle = '#ffffff';
+        // 1b. Draw patient-ID inputs manually on the canvas (white fill + text).
+        //     html2canvas mis-positions text inside <input> elements (it renders
+        //     text shifted/clipped vs the browser's own rendering).  We handle
+        //     these fields ourselves and hide them from html2canvas.
         const pageRect = page.getBoundingClientRect();
-        page.querySelectorAll('.patient-id input').forEach(inp => {
+        const pidInputs = Array.from(page.querySelectorAll('.patient-id input'));
+
+        // Font: 8pt at 96 dpi = 8*(96/72) ≈ 10.67 px; multiply by SCALE for canvas
+        const pidFontPx = Math.round(8 * (96 / 72) * SCALE);
+        ctx.font      = `${pidFontPx}px Arial, sans-serif`;
+        ctx.textBaseline = 'middle';
+
+        pidInputs.forEach(inp => {
           const r = inp.getBoundingClientRect();
-          ctx.fillRect(
-            (r.left - pageRect.left) * SCALE,
-            (r.top  - pageRect.top)  * SCALE,
-            r.width  * SCALE,
-            r.height * SCALE
-          );
+          const x = (r.left - pageRect.left) * SCALE;
+          const y = (r.top  - pageRect.top)  * SCALE;
+          const w = r.width  * SCALE;
+          const h = r.height * SCALE;
+
+          // White fill covers background-image dots
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, w, h);
+
+          // Typed text (black, vertically centred in the row)
+          if (inp.value) {
+            ctx.fillStyle = '#000000';
+            ctx.fillText(inp.value, x, y + h / 2);
+          }
         });
+
+        // Hide inputs so html2canvas doesn't draw them again (with wrong offset)
+        pidInputs.forEach(inp => { inp.style.visibility = 'hidden'; });
 
         // 2. Capture form overlay (inputs, table) without background.
         //    - Clear backgroundImage + backgroundColor so the page background
@@ -569,6 +586,9 @@
         page.style.backgroundImage = savedBgImage;
         page.style.backgroundColor = savedBgColor;
         page.style.transform       = savedTransform;
+
+        // Restore patient-ID inputs
+        pidInputs.forEach(inp => { inp.style.visibility = ''; });
 
         // 3. Composite overlay on top of background
         ctx.drawImage(overlay, 0, 0, W, H);
