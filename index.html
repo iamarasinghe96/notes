@@ -84,7 +84,7 @@
 
   .overlay-table tbody td textarea {
     resize: none;
-    overflow-y: hidden;
+    overflow: hidden;
     text-align: justify;
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -270,6 +270,14 @@
   setBgVisible(true);
 
   // Build 35 data rows per page
+  function autoExpand(ta) {
+    const tr = ta.closest('tr');
+    ta.style.height = '0';
+    const needed = ta.scrollHeight;
+    ta.style.height = needed + 'px';
+    tr.style.height = Math.max(needed, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-height')) * 3.7795) + 'px';
+  }
+
   function buildRows(tbodyId) {
     const tbody = document.getElementById(tbodyId);
     for (let i = 0; i < 35; i++) {
@@ -278,6 +286,8 @@
         `<td><input type="text" aria-label="Date/Time ${i+1}"></td>` +
         `<td><textarea aria-label="Notes ${i+1}"></textarea></td>`;
       tbody.appendChild(tr);
+      const ta = tr.querySelector('textarea');
+      ta.addEventListener('input', () => autoExpand(ta));
     }
   }
   buildRows('body1');
