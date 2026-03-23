@@ -240,13 +240,15 @@
 <script>
   const root = document.documentElement;
 
-  // Apply base64 backgrounds if placeholders have been replaced
-  if (typeof PAGE1_B64 !== 'undefined' && !PAGE1_B64.startsWith('PASTE')) {
-    root.style.setProperty('--bg-page1', `url(data:image/png;base64,${PAGE1_B64})`);
+  // Apply base64 backgrounds if placeholders have been replaced.
+  // Accepts either a raw base64 string OR a full data: URI.
+  function applyBg(varName, val) {
+    if (!val || val.startsWith('PASTE')) return;
+    const uri = val.startsWith('data:') ? val : `data:image/png;base64,${val}`;
+    root.style.setProperty(varName, `url(${uri})`);
   }
-  if (typeof PAGE2_B64 !== 'undefined' && !PAGE2_B64.startsWith('PASTE')) {
-    root.style.setProperty('--bg-page2', `url(data:image/png;base64,${PAGE2_B64})`);
-  }
+  if (typeof PAGE1_B64 !== 'undefined') applyBg('--bg-page1', PAGE1_B64);
+  if (typeof PAGE2_B64 !== 'undefined') applyBg('--bg-page2', PAGE2_B64);
 
   // Build 35 data rows per page
   function buildRows(tbodyId) {
