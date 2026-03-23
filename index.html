@@ -19,6 +19,8 @@
     --pid-top:         8mm;
     --pid-left:        109mm;
     --pid-width:       90mm;
+    --pid-row-height:  6mm;
+    --pid-dob-sex-gap: 3mm;
   }
 
   /* ── PAGE SETUP ─────────────────────────────────────────────────────── */
@@ -180,7 +182,7 @@
   .patient-id .pid-row {
     display: flex;
     align-items: baseline;
-    height: 6mm;
+    height: var(--pid-row-height);
     gap: 1mm;
   }
 
@@ -198,8 +200,8 @@
   .pid-dob-sex {
     display: flex;
     align-items: baseline;
-    height: 6mm;
-    gap: 3mm;
+    height: var(--pid-row-height);
+    gap: var(--pid-dob-sex-gap);
   }
 
   .pid-dob-sex .pid-dob {
@@ -328,6 +330,16 @@
     <input type="range" id="s-pid-width" min="40"  max="120" step="0.5" value="90">
     <span class="val" id="v-pid-width">90</span>
   </div>
+  <div class="ctrl-row">
+    <label>Row height (mm)</label>
+    <input type="range" id="s-pid-row-height" min="3" max="12" step="0.25" value="6">
+    <span class="val" id="v-pid-row-height">6</span>
+  </div>
+  <div class="ctrl-row">
+    <label>DOB / Sex gap (mm)</label>
+    <input type="range" id="s-pid-dob-sex-gap" min="0" max="20" step="0.5" value="3">
+    <span class="val" id="v-pid-dob-sex-gap">3</span>
+  </div>
 
   <div class="ctrl-row-check">
     <input type="checkbox" id="toggle-bg" checked>
@@ -428,9 +440,11 @@
 
   // Live slider → CSS variable wiring
   const knobs = [
-    { id: 's-pid-top',   val: 'v-pid-top',   css: '--pid-top',   unit: 'mm' },
-    { id: 's-pid-left',  val: 'v-pid-left',  css: '--pid-left',  unit: 'mm' },
-    { id: 's-pid-width', val: 'v-pid-width', css: '--pid-width', unit: 'mm' },
+    { id: 's-pid-top',         val: 'v-pid-top',         css: '--pid-top',         unit: 'mm' },
+    { id: 's-pid-left',        val: 'v-pid-left',        css: '--pid-left',        unit: 'mm' },
+    { id: 's-pid-width',       val: 'v-pid-width',       css: '--pid-width',       unit: 'mm' },
+    { id: 's-pid-row-height',  val: 'v-pid-row-height',  css: '--pid-row-height',  unit: 'mm' },
+    { id: 's-pid-dob-sex-gap', val: 'v-pid-dob-sex-gap', css: '--pid-dob-sex-gap', unit: 'mm' },
   ];
 
   knobs.forEach(({ id, val, css, unit }) => {
