@@ -102,75 +102,6 @@
     height: 100%;
   }
 
-  /* ── ALIGNMENT CONTROL PANEL ─────────────────────────────────────────── */
-  #controls {
-    position: fixed;
-    bottom: 12px;
-    right:  12px;
-    z-index: 999;
-    background: #ffffffe8;
-    border: 1px solid #aaa;
-    border-radius: 8px;
-    padding: 10px 14px 12px;
-    font: 12px Arial, sans-serif;
-    box-shadow: 0 2px 12px #0004;
-    min-width: 300px;
-  }
-  #controls h3 {
-    font-size: 13px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 4px;
-  }
-  .ctrl-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 5px;
-  }
-  .ctrl-row label {
-    flex: 0 0 155px;
-    font-size: 11px;
-  }
-  .ctrl-row input[type=range] {
-    flex: 1;
-    accent-color: #1a73e8;
-  }
-  .ctrl-row .val {
-    flex: 0 0 40px;
-    text-align: right;
-    font: 11px/1 monospace;
-    color: #1a73e8;
-    font-weight: bold;
-  }
-  .ctrl-row-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 8px 0 4px;
-    font-size: 11px;
-  }
-  .ctrl-row-check input { width: 15px; height: 15px; cursor: pointer; }
-  #copy-btn {
-    margin-top: 8px;
-    width: 100%;
-    padding: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    background: #1a73e8;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-  }
-  #copy-btn:hover { background: #1558b0; }
-  #copied-msg {
-    font-size: 11px;
-    color: green;
-    text-align: center;
-    margin-top: 4px;
-    display: none;
-  }
-
   /* ── PATIENT ID OVERLAY ─────────────────────────────────────────────── */
   .patient-id {
     position: absolute;
@@ -233,7 +164,6 @@
   @media print {
     body { background: none; padding: 0; gap: 0; }
     .page { box-shadow: none; page-break-after: always; }
-    #controls { display: none; }
     .overlay-table th, .overlay-table td { border-color: #000; }
   }
 </style>
@@ -312,49 +242,6 @@
   </table>
 </div>
 
-<!-- ═══════════ ALIGNMENT CONTROL PANEL (remove when done) ═══════════ -->
-<div id="controls">
-  <h3>Patient ID Box Alignment</h3>
-
-  <div class="ctrl-row">
-    <label>↕ Top (mm)</label>
-    <input type="range" id="s-pid-top"   min="0"   max="60"  step="0.5" value="14">
-    <span class="val" id="v-pid-top">14</span>
-  </div>
-  <div class="ctrl-row">
-    <label>↔ Left (mm)</label>
-    <input type="range" id="s-pid-left"  min="50"  max="180" step="0.5" value="125.5">
-    <span class="val" id="v-pid-left">125.5</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Width (mm)</label>
-    <input type="range" id="s-pid-width" min="40"  max="120" step="0.5" value="70.5">
-    <span class="val" id="v-pid-width">70.5</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Row height (mm)</label>
-    <input type="range" id="s-pid-row-height" min="3" max="12" step="0.25" value="7.1">
-    <span class="val" id="v-pid-row-height">7.1</span>
-  </div>
-  <div class="ctrl-row">
-    <label>DOB / Sex gap (mm)</label>
-    <input type="range" id="s-pid-dob-sex-gap" min="0" max="20" step="0.5" value="10">
-    <span class="val" id="v-pid-dob-sex-gap">10</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Sex box width (mm)</label>
-    <input type="range" id="s-pid-sex-width" min="1" max="40" step="0.5" value="20">
-    <span class="val" id="v-pid-sex-width">20</span>
-  </div>
-
-  <div class="ctrl-row-check">
-    <input type="checkbox" id="toggle-bg" checked>
-    <label for="toggle-bg">Show PNG background</label>
-  </div>
-
-  <button id="copy-btn">Copy CSS values</button>
-  <div id="copied-msg">Copied to clipboard!</div>
-</div>
 
 <datalist id="sex-options">
   <option value="Male">
@@ -502,23 +389,7 @@
     });
   });
 
-  // PNG background toggle
-  document.getElementById('toggle-bg').addEventListener('change', function () {
-    setBgVisible(this.checked);
-  });
 
-  // Copy current CSS values to clipboard
-  document.getElementById('copy-btn').addEventListener('click', () => {
-    const lines = knobs.map(({ id, css, unit }) =>
-      `    ${css}: ${document.getElementById(id).value}${unit};`
-    );
-    const snippet = `:root {\n${lines.join('\n')}\n}`;
-    navigator.clipboard.writeText(snippet).then(() => {
-      const msg = document.getElementById('copied-msg');
-      msg.style.display = 'block';
-      setTimeout(() => { msg.style.display = 'none'; }, 2000);
-    });
-  });
 </script>
 </body>
 </html>
