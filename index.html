@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Progress Notes – AWH</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   /* ── ALIGNMENT KNOBS ────────────────────────────────────────────────────
      Tune with the panel below, then paste the :root block here and
@@ -236,7 +238,7 @@
 <body>
 
 <div class="action-btns">
-  <button id="btn-pdf"   onclick="window.print()">⬇ Download PDF</button>
+  <button id="btn-pdf"   onclick="downloadPDF()">⬇ Download PDF</button>
   <button id="btn-clear" onclick="clearData()">✕ Clear All</button>
 </div>
 
@@ -472,6 +474,39 @@
 
   // Restore on page load (after rows are built)
   loadData();
+
+  // ── PDF DOWNLOAD ─────────────────────────────────────────────────────
+  async function downloadPDF() {
+    const btn = document.getElementById('btn-pdf');
+    btn.textContent = 'Generating…';
+    btn.disabled = true;
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pages = document.querySelectorAll('.page');
+
+      for (let i = 0; i < pages.length; i++) {
+        const canvas = await html2canvas(pages[i], {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: pages[i].offsetWidth,
+          height: pages[i].offsetHeight,
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      }
+
+      pdf.save('progress-notes.pdf');
+    } finally {
+      btn.textContent = '⬇ Download PDF';
+      btn.disabled = false;
+    }
+  }
 
 </script>
 </body>
