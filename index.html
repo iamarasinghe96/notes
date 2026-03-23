@@ -202,11 +202,34 @@
   #btn-clear { background: #d93025; color: #fff; }
   #btn-clear:hover { background: #b0261c; }
 
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
   @media print {
-    body { background: none; padding: 0; gap: 0; }
-    .page { box-shadow: none; page-break-after: always; }
-    .overlay-table th, .overlay-table td { border-color: #000; }
+    html, body {
+      width: 210mm;
+      margin: 0;
+      padding: 0;
+      gap: 0;
+      background: none;
+    }
     .action-btns { display: none; }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      break-after: page;
+      page-break-after: always;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      transform: none !important;
+    }
+    .overlay-table th, .overlay-table td { border-color: #000; }
   }
 </style>
 </head>
