@@ -28,18 +28,20 @@
     padding: 12mm 0 24mm;
   }
 
-  /* A4 page shell – PNG fills it */
+  /* A4 page shell */
   .page {
     position: relative;
     width:  210mm;
     height: 297mm;
+    background: #fff;          /* white during alignment */
     background-size: 100% 100%;
     background-position: top left;
     background-repeat: no-repeat;
     box-shadow: 0 4px 16px #0006;
   }
-  .page-1 { background-image: url('page_01.png'); }
-  .page-2 { background-image: url('page_01.png'); } /* swap to page_02.png when available */
+  /* PNG backgrounds – only applied when .show-bg is toggled on */
+  body.show-bg .page-1 { background-image: url('page_01.png'); }
+  body.show-bg .page-2 { background-image: url('page_01.png'); } /* swap to page_02.png when available */
 
   /* ── TABLE OVERLAY ───────────────────────────────────────────────────── */
   .overlay-table {
@@ -202,6 +204,11 @@
     <span class="val" id="v-row">7</span>
   </div>
 
+  <div class="ctrl-row" style="margin-top:8px;">
+    <label style="flex:0 0 auto;">Show PNG background</label>
+    <input type="checkbox" id="toggle-bg" style="width:16px;height:16px;cursor:pointer;">
+  </div>
+
   <button id="copy-btn">Copy CSS values</button>
   <div id="copied-msg">Copied to clipboard!</div>
 </div>
@@ -236,6 +243,11 @@
       label.textContent = slider.value;
       root.style.setProperty(css, slider.value + unit);
     });
+  });
+
+  // Toggle PNG background on/off
+  document.getElementById('toggle-bg').addEventListener('change', function() {
+    document.body.classList.toggle('show-bg', this.checked);
   });
 
   // Copy current values as CSS snippet
