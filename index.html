@@ -524,12 +524,16 @@
         }
 
         // 2. Capture form overlay (inputs, table) without background.
-        //    Must clear BOTH backgroundImage AND background-color (background: #fff
-        //    in CSS sets a white background-color that would cover the image).
-        const savedBgImage = page.style.backgroundImage;
-        const savedBgColor = page.style.backgroundColor;
-        page.style.backgroundImage = 'none';
-        page.style.backgroundColor = 'transparent';
+        //    - Clear backgroundImage + backgroundColor (background:#fff in CSS
+        //      leaves an opaque white layer that covers the image below).
+        //    - Also set transform:none so mobile's scale() transform doesn't
+        //      make html2canvas render content only in the scaled-down sub-area.
+        const savedBgImage   = page.style.backgroundImage;
+        const savedBgColor   = page.style.backgroundColor;
+        const savedTransform = page.style.transform;
+        page.style.backgroundImage  = 'none';
+        page.style.backgroundColor  = 'transparent';
+        page.style.transform        = 'none';
 
         const overlay = await html2canvas(page, {
           scale: SCALE,
@@ -542,6 +546,7 @@
 
         page.style.backgroundImage = savedBgImage;
         page.style.backgroundColor = savedBgColor;
+        page.style.transform       = savedTransform;
 
         // 3. Composite overlay on top of background
         ctx.drawImage(overlay, 0, 0, W, H);
