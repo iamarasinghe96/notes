@@ -39,9 +39,9 @@
     background-repeat: no-repeat;
     box-shadow: 0 4px 16px #0006;
   }
-  /* PNG backgrounds – only applied when .show-bg is toggled on */
-  body.show-bg .page-1 { background-image: url('page_01.png'); }
-  body.show-bg .page-2 { background-image: url('page_01.png'); } /* swap to page_02.png when available */
+  /* PNG backgrounds – injected via JS from assets/backgrounds.js */
+  body.show-bg .page-1 { background-image: var(--bg-page1); }
+  body.show-bg .page-2 { background-image: var(--bg-page2); }
 
   /* ── TABLE OVERLAY ───────────────────────────────────────────────────── */
   .overlay-table {
@@ -213,7 +213,17 @@
   <div id="copied-msg">Copied to clipboard!</div>
 </div>
 
+<script src="assets/backgrounds.js"></script>
 <script>
+  // Apply base64 backgrounds as CSS variables (if placeholders have been replaced)
+  const root = document.documentElement;
+  if (typeof PAGE1_B64 !== 'undefined' && !PAGE1_B64.startsWith('PASTE')) {
+    root.style.setProperty('--bg-page1', `url(data:image/png;base64,${PAGE1_B64})`);
+  }
+  if (typeof PAGE2_B64 !== 'undefined' && !PAGE2_B64.startsWith('PASTE')) {
+    root.style.setProperty('--bg-page2', `url(data:image/png;base64,${PAGE2_B64})`);
+  }
+
   // Generate 35 data rows for a given tbody
   function buildRows(tbodyId) {
     const tbody = document.getElementById(tbodyId);
