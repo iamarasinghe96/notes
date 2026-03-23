@@ -477,13 +477,13 @@
 
   // ── PDF DOWNLOAD ─────────────────────────────────────────────────────
 
-  // Detect whether raw base64 is PNG or JPEG by checking magic bytes
-  function b64Format(b64) {
-    const bytes = atob(b64.slice(0, 12));
-    const hex = Array.from(bytes, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
-    if (hex.startsWith('ffd8ff')) return 'JPEG';
-    if (hex.startsWith('89504e47')) return 'PNG';
-    return 'PNG';
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
   }
 
   async function downloadPDF() {
@@ -496,41 +496,52 @@
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       const pages = document.querySelectorAll('.page');
 
-      // Raw base64 strings for each page background
-      const rawBgs = [
-        (typeof PAGE1_B64 !== 'undefined' && !PAGE1_B64.startsWith('PASTE'))
-          ? (PAGE1_B64.startsWith('data:') ? PAGE1_B64.split(',')[1] : PAGE1_B64) : null,
-        (typeof PAGE2_B64 !== 'undefined' && !PAGE2_B64.startsWith('PASTE'))
-          ? (PAGE2_B64.startsWith('data:') ? PAGE2_B64.split(',')[1] : PAGE2_B64) : null,
+      const bgSrcs = [
+        (typeof PAGE1_B64 !== 'undefined') ? toDataUri(PAGE1_B64) : null,
+        (typeof PAGE2_B64 !== 'undefined') ? toDataUri(PAGE2_B64) : null,
       ];
 
       for (let i = 0; i < pages.length; i++) {
         if (i > 0) pdf.addPage();
 
-        // 1. Embed background directly from source – no re-encoding, full quality
-        if (rawBgs[i]) {
-          const fmt = b64Format(rawBgs[i]);
-          pdf.addImage(rawBgs[i], fmt, 0, 0, 210, 297);
+        const page  = pages[i];
+        const SCALE = 3;
+        const W = page.offsetWidth  * SCALE;
+        const H = page.offsetHeight * SCALE;
+
+        // Composite canvas: background at full res + form overlay
+        const out = document.createElement('canvas');
+        out.width  = W;
+        out.height = H;
+        const ctx = out.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+
+        // 1. Draw background using native Image loader (same as browser web view)
+        if (bgSrcs[i]) {
+          const bgImg = await loadImage(bgSrcs[i]);
+          ctx.drawImage(bgImg, 0, 0, W, H);
         }
 
-        // 2. Capture only the form overlay (inputs, table) with transparent bg
-        const page = pages[i];
+        // 2. Capture form overlay (inputs, table) without background
         const savedBg = page.style.backgroundImage;
         page.style.backgroundImage = 'none';
 
-        const canvas = await html2canvas(page, {
-          scale: 3,
+        const overlay = await html2canvas(page, {
+          scale: SCALE,
           useCORS: true,
           allowTaint: true,
           backgroundColor: null,
-          width: page.offsetWidth,
+          width:  page.offsetWidth,
           height: page.offsetHeight,
         });
 
         page.style.backgroundImage = savedBg;
 
-        // 3. Overlay inputs/table as transparent PNG on top of background
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
+        // 3. Composite overlay on top of background
+        ctx.drawImage(overlay, 0, 0, W, H);
+
+        pdf.addImage(out.toDataURL('image/jpeg', 0.97), 'JPEG', 0, 0, 210, 297);
       }
 
       pdf.save('progress-notes.pdf');
