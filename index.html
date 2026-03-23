@@ -132,7 +132,8 @@
   .patient-id .pid-row input {
     flex: 1;
     border: none;
-    background: #fff;
+    background: #fff !important;
+    -webkit-background-color: #fff !important;
     font: 8pt Arial, sans-serif;
     padding: 0 1mm 0 0;
     outline: none;
@@ -167,7 +168,8 @@
   .pid-dob-sex input {
     flex: 1;
     border: none;
-    background: #fff;
+    background: #fff !important;
+    -webkit-background-color: #fff !important;
     font: 8pt Arial, sans-serif;
     padding: 0 1mm 0 0;
     outline: none;
@@ -527,9 +529,25 @@
           ctx.drawImage(bgImg, 0, 0, W, H);
         }
 
+        // 1b. Draw white fill rectangles over patient-ID input areas so the
+        //     background template dots are hidden before we overlay typed text.
+        //     html2canvas does not reliably render background-color on <input>
+        //     elements, so we paint the white areas directly onto the canvas.
+        ctx.fillStyle = '#ffffff';
+        const pageRect = page.getBoundingClientRect();
+        page.querySelectorAll('.patient-id input').forEach(inp => {
+          const r = inp.getBoundingClientRect();
+          ctx.fillRect(
+            (r.left - pageRect.left) * SCALE,
+            (r.top  - pageRect.top)  * SCALE,
+            r.width  * SCALE,
+            r.height * SCALE
+          );
+        });
+
         // 2. Capture form overlay (inputs, table) without background.
-        //    - Clear backgroundImage + backgroundColor (background:#fff in CSS
-        //      leaves an opaque white layer that covers the image below).
+        //    - Clear backgroundImage + backgroundColor so the page background
+        //      doesn't produce an opaque white layer over the image drawn above.
         //    - Also set transform:none so mobile's scale() transform doesn't
         //      make html2canvas render content only in the scaled-down sub-area.
         const savedBgImage   = page.style.backgroundImage;
