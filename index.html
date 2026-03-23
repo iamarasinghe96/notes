@@ -74,22 +74,26 @@
   .overlay-table tbody td input,
   .overlay-table tbody td textarea {
     width: 100%;
-    height: 100%;
     border: none;
     background: transparent;
     font: 8pt Arial, sans-serif;
     padding: 0;
     outline: none;
+    box-sizing: border-box;
+  }
+
+  .overlay-table tbody td input {
+    height: 100%;
   }
 
   .overlay-table tbody td textarea {
     resize: none;
     overflow: hidden;
     text-align: justify;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    line-height: 1.2;
+    line-height: 1.3;
     display: block;
+    height: auto;
+    min-height: var(--row-height);
   }
 
   /* ── ALIGNMENT CONTROL PANEL ─────────────────────────────────────────── */
@@ -271,11 +275,8 @@
 
   // Build 35 data rows per page
   function autoExpand(ta) {
-    const tr = ta.closest('tr');
-    ta.style.height = '0';
-    const needed = ta.scrollHeight;
-    ta.style.height = needed + 'px';
-    tr.style.height = Math.max(needed, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-height')) * 3.7795) + 'px';
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
   }
 
   function buildRows(tbodyId) {
