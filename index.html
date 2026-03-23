@@ -21,6 +21,7 @@
     --pid-width:       90mm;
     --pid-row-height:  6mm;
     --pid-dob-sex-gap: 3mm;
+    --pid-sex-width:   20mm;
   }
 
   /* ── PAGE SETUP ─────────────────────────────────────────────────────── */
@@ -215,7 +216,7 @@
     display: flex;
     align-items: baseline;
     gap: 1mm;
-    flex: 1;
+    flex: 0 0 var(--pid-sex-width);
   }
 
   .pid-dob-sex input {
@@ -253,10 +254,10 @@
     </div>
     <div class="pid-dob-sex">
       <div class="pid-dob">
-        <input type="text" aria-label="Date of Birth">
+        <input type="text" class="pid-dob-input" inputmode="numeric" placeholder="DD/MM/YYYY" aria-label="Date of Birth">
       </div>
       <div class="pid-sex">
-        <input type="text" aria-label="Sex">
+        <input type="text" class="pid-sex-input" list="sex-options" aria-label="Sex">
       </div>
     </div>
   </div>
@@ -289,10 +290,10 @@
     </div>
     <div class="pid-dob-sex">
       <div class="pid-dob">
-        <input type="text" aria-label="Date of Birth">
+        <input type="text" class="pid-dob-input" inputmode="numeric" placeholder="DD/MM/YYYY" aria-label="Date of Birth">
       </div>
       <div class="pid-sex">
-        <input type="text" aria-label="Sex">
+        <input type="text" class="pid-sex-input" list="sex-options" aria-label="Sex">
       </div>
     </div>
   </div>
@@ -340,6 +341,11 @@
     <input type="range" id="s-pid-dob-sex-gap" min="0" max="20" step="0.5" value="3">
     <span class="val" id="v-pid-dob-sex-gap">3</span>
   </div>
+  <div class="ctrl-row">
+    <label>Sex box width (mm)</label>
+    <input type="range" id="s-pid-sex-width" min="8" max="40" step="0.5" value="20">
+    <span class="val" id="v-pid-sex-width">20</span>
+  </div>
 
   <div class="ctrl-row-check">
     <input type="checkbox" id="toggle-bg" checked>
@@ -349,6 +355,11 @@
   <button id="copy-btn">Copy CSS values</button>
   <div id="copied-msg">Copied to clipboard!</div>
 </div>
+
+<datalist id="sex-options">
+  <option value="Male">
+  <option value="Female">
+</datalist>
 
 <!-- base64 backgrounds (edit assets/backgrounds.js to fill in your PNGs) -->
 <script src="assets/backgrounds.js"></script>
@@ -445,6 +456,7 @@
     { id: 's-pid-width',       val: 'v-pid-width',       css: '--pid-width',       unit: 'mm' },
     { id: 's-pid-row-height',  val: 'v-pid-row-height',  css: '--pid-row-height',  unit: 'mm' },
     { id: 's-pid-dob-sex-gap', val: 'v-pid-dob-sex-gap', css: '--pid-dob-sex-gap', unit: 'mm' },
+    { id: 's-pid-sex-width',   val: 'v-pid-sex-width',   css: '--pid-sex-width',   unit: 'mm' },
   ];
 
   knobs.forEach(({ id, val, css, unit }) => {
@@ -453,6 +465,40 @@
     slider.addEventListener('input', () => {
       display.textContent = slider.value;
       root.style.setProperty(css, slider.value + unit);
+    });
+  });
+
+  // DOB auto-slash (DD/MM/YYYY, numeric keyboard)
+  document.querySelectorAll('.pid-dob-input').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        // If the char before cursor is a slash, remove the slash too
+        const pos = inp.selectionStart;
+        if (pos > 0 && inp.value[pos - 1] === '/') {
+          e.preventDefault();
+          inp.value = inp.value.slice(0, pos - 1) + inp.value.slice(pos);
+          inp.setSelectionRange(pos - 1, pos - 1);
+        }
+      }
+    });
+    inp.addEventListener('input', () => {
+      const pos = inp.selectionStart;
+      const digits = inp.value.replace(/\D/g, '').slice(0, 8);
+      let fmt = digits.slice(0, 2);
+      if (digits.length > 2) fmt += '/' + digits.slice(2, 4);
+      if (digits.length > 4) fmt += '/' + digits.slice(4, 8);
+      inp.value = fmt;
+      // Restore cursor, accounting for inserted slashes
+      const slashes = (fmt.slice(0, pos).match(/\//g) || []).length;
+      inp.setSelectionRange(pos + slashes, pos + slashes);
+    });
+  });
+
+  // Sex smart dropdown: m → Male, f → Female
+  document.querySelectorAll('.pid-sex-input').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key.toLowerCase() === 'm') { e.preventDefault(); inp.value = 'Male'; }
+      else if (e.key.toLowerCase() === 'f') { e.preventDefault(); inp.value = 'Female'; }
     });
   });
 
