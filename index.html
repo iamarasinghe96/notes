@@ -476,6 +476,16 @@
   loadData();
 
   // ── PDF DOWNLOAD ─────────────────────────────────────────────────────
+
+  // Detect whether raw base64 is PNG or JPEG by checking magic bytes
+  function b64Format(b64) {
+    const bytes = atob(b64.slice(0, 12));
+    const hex = Array.from(bytes, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+    if (hex.startsWith('ffd8ff')) return 'JPEG';
+    if (hex.startsWith('89504e47')) return 'PNG';
+    return 'PNG';
+  }
+
   async function downloadPDF() {
     const btn = document.getElementById('btn-pdf');
     btn.textContent = 'Generating…';
@@ -486,19 +496,40 @@
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       const pages = document.querySelectorAll('.page');
 
+      // Raw base64 strings for each page background
+      const rawBgs = [
+        (typeof PAGE1_B64 !== 'undefined' && !PAGE1_B64.startsWith('PASTE'))
+          ? (PAGE1_B64.startsWith('data:') ? PAGE1_B64.split(',')[1] : PAGE1_B64) : null,
+        (typeof PAGE2_B64 !== 'undefined' && !PAGE2_B64.startsWith('PASTE'))
+          ? (PAGE2_B64.startsWith('data:') ? PAGE2_B64.split(',')[1] : PAGE2_B64) : null,
+      ];
+
       for (let i = 0; i < pages.length; i++) {
         if (i > 0) pdf.addPage();
 
-        const canvas = await html2canvas(pages[i], {
+        // 1. Embed background directly from source – no re-encoding, full quality
+        if (rawBgs[i]) {
+          const fmt = b64Format(rawBgs[i]);
+          pdf.addImage(rawBgs[i], fmt, 0, 0, 210, 297);
+        }
+
+        // 2. Capture only the form overlay (inputs, table) with transparent bg
+        const page = pages[i];
+        const savedBg = page.style.backgroundImage;
+        page.style.backgroundImage = 'none';
+
+        const canvas = await html2canvas(page, {
           scale: 3,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: '#ffffff',
-          width: pages[i].offsetWidth,
-          height: pages[i].offsetHeight,
+          backgroundColor: null,
+          width: page.offsetWidth,
+          height: page.offsetHeight,
         });
 
-        // PNG (lossless) — no compression artefacts on the background
+        page.style.backgroundImage = savedBg;
+
+        // 3. Overlay inputs/table as transparent PNG on top of background
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
       }
 
