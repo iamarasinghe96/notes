@@ -19,7 +19,7 @@
     --pid-top:         14mm;
     --pid-left:        125.5mm;
     --pid-width:       70.5mm;
-    --pid-row-height:  7mm;
+    --pid-row-height:  7.1mm;
     --pid-dob-sex-gap: 10mm;
     --pid-sex-width:   20mm;
   }
@@ -217,6 +217,8 @@
     align-items: baseline;
     gap: 1mm;
     flex: 0 0 var(--pid-sex-width);
+    min-width: 0;
+    overflow: hidden;
   }
 
   .pid-dob-sex input {
@@ -333,8 +335,8 @@
   </div>
   <div class="ctrl-row">
     <label>Row height (mm)</label>
-    <input type="range" id="s-pid-row-height" min="3" max="12" step="0.25" value="7">
-    <span class="val" id="v-pid-row-height">7</span>
+    <input type="range" id="s-pid-row-height" min="3" max="12" step="0.25" value="7.1">
+    <span class="val" id="v-pid-row-height">7.1</span>
   </div>
   <div class="ctrl-row">
     <label>DOB / Sex gap (mm)</label>
