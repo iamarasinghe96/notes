@@ -311,32 +311,22 @@
 
 <!-- ═══════════ ALIGNMENT CONTROL PANEL (remove when done) ═══════════ -->
 <div id="controls">
-  <h3>Table Alignment Tool</h3>
+  <h3>Patient ID Box Alignment</h3>
 
   <div class="ctrl-row">
-    <label>↕ Top offset (mm)</label>
-    <input type="range" id="s-top"   min="30"  max="120" step="0.5"  value="42">
-    <span class="val" id="v-top">42</span>
+    <label>↕ Top (mm)</label>
+    <input type="range" id="s-pid-top"   min="0"   max="60"  step="0.5" value="8">
+    <span class="val" id="v-pid-top">8</span>
   </div>
   <div class="ctrl-row">
-    <label>↔ Left offset (mm)</label>
-    <input type="range" id="s-left"  min="-10" max="30"  step="0.5"  value="21">
-    <span class="val" id="v-left">21</span>
+    <label>↔ Left (mm)</label>
+    <input type="range" id="s-pid-left"  min="50"  max="180" step="0.5" value="109">
+    <span class="val" id="v-pid-left">109</span>
   </div>
   <div class="ctrl-row">
-    <label>Date/Time col width (mm)</label>
-    <input type="range" id="s-date"  min="15"  max="60"  step="0.5"  value="19.5">
-    <span class="val" id="v-date">19.5</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Notes col width (mm)</label>
-    <input type="range" id="s-notes" min="80"  max="200" step="0.5"  value="157">
-    <span class="val" id="v-notes">157</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Row height (mm)</label>
-    <input type="range" id="s-row"   min="4"   max="12"  step="0.01" value="6.83">
-    <span class="val" id="v-row">6.83</span>
+    <label>Width (mm)</label>
+    <input type="range" id="s-pid-width" min="40"  max="120" step="0.5" value="90">
+    <span class="val" id="v-pid-width">90</span>
   </div>
 
   <div class="ctrl-row-check">
@@ -438,11 +428,9 @@
 
   // Live slider → CSS variable wiring
   const knobs = [
-    { id: 's-top',       val: 'v-top',       css: '--table-top',       unit: 'mm' },
-    { id: 's-left',      val: 'v-left',      css: '--table-left',      unit: 'mm' },
-    { id: 's-date',      val: 'v-date',      css: '--date-col-width',  unit: 'mm' },
-    { id: 's-notes',     val: 'v-notes',     css: '--notes-col-width', unit: 'mm' },
-    { id: 's-row',       val: 'v-row',       css: '--row-height',      unit: 'mm' },
+    { id: 's-pid-top',   val: 'v-pid-top',   css: '--pid-top',   unit: 'mm' },
+    { id: 's-pid-left',  val: 'v-pid-left',  css: '--pid-left',  unit: 'mm' },
+    { id: 's-pid-width', val: 'v-pid-width', css: '--pid-width', unit: 'mm' },
   ];
 
   knobs.forEach(({ id, val, css, unit }) => {
