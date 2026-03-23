@@ -71,7 +71,8 @@
     background: rgba(255,255,255,0.6);
   }
 
-  .overlay-table tbody td input {
+  .overlay-table tbody td input,
+  .overlay-table tbody td textarea {
     width: 100%;
     height: 100%;
     border: none;
@@ -79,6 +80,16 @@
     font: 8pt Arial, sans-serif;
     padding: 0;
     outline: none;
+  }
+
+  .overlay-table tbody td textarea {
+    resize: none;
+    overflow-y: hidden;
+    text-align: justify;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.2;
+    display: block;
   }
 
   /* ── ALIGNMENT CONTROL PANEL ─────────────────────────────────────────── */
@@ -265,7 +276,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML =
         `<td><input type="text" aria-label="Date/Time ${i+1}"></td>` +
-        `<td><input type="text" aria-label="Notes ${i+1}"></td>`;
+        `<td><textarea aria-label="Notes ${i+1}"></textarea></td>`;
       tbody.appendChild(tr);
     }
   }
