@@ -40,9 +40,7 @@
     box-shadow: 0 4px 16px #0006;
   }
 
-  /* PNG backgrounds applied only when show-bg toggle is on */
-  body.show-bg .page-1 { background-image: var(--bg-page1, none); }
-  body.show-bg .page-2 { background-image: var(--bg-page2, none); }
+  /* backgrounds applied directly via JS inline style */
 
   /* ── TABLE OVERLAY ───────────────────────────────────────────────────── */
   .overlay-table {
@@ -227,7 +225,7 @@
   </div>
 
   <div class="ctrl-row-check">
-    <input type="checkbox" id="toggle-bg">
+    <input type="checkbox" id="toggle-bg" checked>
     <label for="toggle-bg">Show PNG background</label>
   </div>
 
@@ -240,15 +238,25 @@
 <script>
   const root = document.documentElement;
 
-  // Apply base64 backgrounds if placeholders have been replaced.
-  // Accepts either a raw base64 string OR a full data: URI.
-  function applyBg(varName, val) {
-    if (!val || val.startsWith('PASTE')) return;
-    const uri = val.startsWith('data:') ? val : `data:image/png;base64,${val}`;
-    root.style.setProperty(varName, `url(${uri})`);
+  // Build data URIs from whatever format was pasted (raw b64 or full data: URI)
+  function toDataUri(val) {
+    if (!val || val.startsWith('PASTE')) return null;
+    return val.startsWith('data:') ? val : `data:image/png;base64,${val}`;
   }
-  if (typeof PAGE1_B64 !== 'undefined') applyBg('--bg-page1', PAGE1_B64);
-  if (typeof PAGE2_B64 !== 'undefined') applyBg('--bg-page2', PAGE2_B64);
+
+  const bgPage1 = (typeof PAGE1_B64 !== 'undefined') ? toDataUri(PAGE1_B64) : null;
+  const bgPage2 = (typeof PAGE2_B64 !== 'undefined') ? toDataUri(PAGE2_B64) : null;
+
+  const elPage1 = document.querySelector('.page-1');
+  const elPage2 = document.querySelector('.page-2');
+
+  function setBgVisible(visible) {
+    if (elPage1) elPage1.style.backgroundImage = (visible && bgPage1) ? `url(${bgPage1})` : '';
+    if (elPage2) elPage2.style.backgroundImage = (visible && bgPage2) ? `url(${bgPage2})` : '';
+  }
+
+  // Show background on load
+  setBgVisible(true);
 
   // Build 35 data rows per page
   function buildRows(tbodyId) {
@@ -284,7 +292,7 @@
 
   // PNG background toggle
   document.getElementById('toggle-bg').addEventListener('change', function () {
-    document.body.classList.toggle('show-bg', this.checked);
+    setBgVisible(this.checked);
   });
 
   // Copy current CSS values to clipboard
