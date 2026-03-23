@@ -1,456 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Progress Notes – FAW0004 | Albury Wodonga Health</title>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Progress Notes – AWH</title>
+<style>
+  /* ── ALIGNMENT KNOBS ────────────────────────────────────────────────────
+     Tune these with the on-screen panel, then paste the values here and
+     remove the #controls block.                                            */
+  :root {
+    --table-top:        52mm;   /* distance from top of page to table header */
+    --date-col-width:   28mm;   /* width of Date/Time column                 */
+    --notes-col-width: 148mm;   /* width of Notes column                     */
+    --row-height:        7mm;   /* height of every row (header + data rows)  */
+  }
 
-    /* ── Precise A4 measurements from Gemini analysis ─────────────── */
-    :root {
-      --lh:      7mm;   /* line spacing – College Ruled */
-      --dt-col: 20mm;   /* Date/Time column width */
-      --bc-w:   15mm;   /* left barcode strip */
-      --tab-w:  13mm;   /* right green tab */
-      --pg-top: 10mm;   /* page top margin */
-      --pg-bot: 10mm;   /* page bottom margin */
-      --hdr-h:  32mm;   /* header height matching original form */
-      --subh-h:  8mm;   /* sub-header row */
-    }
+  /* ── PAGE SETUP ─────────────────────────────────────────────────────── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Toolbar ──────────────────────────────────────────────────── */
-    #toolbar {
-      position: sticky; top: 0; z-index: 100;
-      background: #fff; border-bottom: 3px solid #5BBD2E;
-      padding: 8px 14px; display: flex; align-items: center; gap: 10px;
-    }
-    .t-brand { display: flex; align-items: center; gap: 8px; }
-    .t-brand svg { width: 34px; height: 34px; flex-shrink: 0; }
-    .t-title { font: 700 .85rem/1.2 system-ui,sans-serif; }
-    .t-sub   { font: .68rem/1 system-ui,sans-serif; color: #666; }
-    .spacer  { flex: 1; }
-    .btn-pdf {
-      background: #5BBD2E; color: #fff; border: none;
-      border-radius: 8px; padding: 8px 14px;
-      font: 700 .82rem system-ui,sans-serif;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-    }
-    .btn-pdf:active { opacity: .75; }
+  body {
+    background: #888;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12mm;
+    padding: 12mm 0 24mm;
+  }
 
-    /* ── Page ─────────────────────────────────────────────────────── */
-    body { background: #888; }
-    .a4-wrapper {
-      display: flex; justify-content: center;
-      padding: 14px 0 40px;
-    }
+  /* A4 page shell – PNG fills it */
+  .page {
+    position: relative;
+    width:  210mm;
+    height: 297mm;
+    background-size: 100% 100%;
+    background-position: top left;
+    background-repeat: no-repeat;
+    box-shadow: 0 4px 16px #0006;
+  }
+  .page-1 { background-image: url('page_01.png'); }
+  .page-2 { background-image: url('page_01.png'); } /* swap to page_02.png when available */
 
-    /* A4 sheet: flex row – barcode strip | form box | green tab */
-    .a4 {
-      width: 210mm; min-height: 297mm;
-      background: #fff;
-      display: flex; flex-direction: row;
-      position: relative;
-      transform-origin: top center;
-      box-shadow: 0 4px 24px rgba(0,0,0,.45);
-      flex-shrink: 0;
-    }
+  /* ── TABLE OVERLAY ───────────────────────────────────────────────────── */
+  .overlay-table {
+    position: absolute;
+    top:  var(--table-top);
+    left: 0;
+    width: calc(var(--date-col-width) + var(--notes-col-width));
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
 
-    /* ── Left barcode strip ───────────────────────────────────────── */
-    .bc-strip {
-      width: var(--bc-w); flex-shrink: 0;
-      display: flex; flex-direction: column; align-items: center;
-      padding-top: var(--pg-top);
-      position: relative;
-    }
+  .overlay-table th,
+  .overlay-table td {
+    height:  var(--row-height);
+    border:  0.5pt solid #000;
+    padding: 0 1.5mm;
+    vertical-align: middle;
+    overflow: hidden;
+    background: transparent;
+  }
 
+  .col-date  { width: var(--date-col-width);  }
+  .col-notes { width: var(--notes-col-width); }
 
-    /* Barcode on left, FAW0004 vertically centred alongside it on the right */
-    .bc-code-group {
-      display: flex; flex-direction: row; align-items: center;
-      margin-top: calc(var(--hdr-h) + var(--subh-h) + 4mm);
-    }
-    /* Wrapper sized to visual (rotated) dimensions by JS */
-    .bc-barcode-wrap {
-      position: relative;
-      flex-shrink: 0;
-      /* width + height set by JS */
-    }
-    /* SVG is absolute so the wrapper owns its own dimensions */
-    #barcode {
-      position: absolute;
-      top: 0; left: 0;
-      transform-origin: top left;
-      /* transform set precisely by JS using actual pixel dimensions */
-    }
-    .bc-label {
-      font: bold 5.5pt Arial,sans-serif; letter-spacing: .05em;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-      white-space: nowrap; margin-left: 1mm;
-    }
-    .bc-store-order {
-      font: 5pt Arial,sans-serif; color: #444;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-      white-space: nowrap;
-      position: absolute; bottom: var(--pg-bot);
-    }
+  .overlay-table thead th {
+    font: 700 6.5pt Arial, sans-serif;
+    text-align: center;
+    background: #fff8;
+  }
 
-    /* ── Main form box ────────────────────────────────────────────── */
-    .form-box {
-      flex: 1;
-      padding: var(--pg-top) 0 var(--pg-bot);
-      display: flex; flex-direction: column;
-    }
+  .overlay-table tbody td input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font: 8pt Arial, sans-serif;
+    padding: 0;
+    outline: none;
+  }
 
-    /* Outer 1pt border wraps header, subheader, notes */
-    .outer {
-      border: 1pt solid #333;
-      flex: 1; display: flex; flex-direction: column;
-    }
+  /* ── ALIGNMENT CONTROL PANEL (remove when done) ─────────────────────── */
+  #controls {
+    position: fixed;
+    bottom: 12px;
+    right:  12px;
+    z-index: 999;
+    background: #ffffffe8;
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font: 12px Arial, sans-serif;
+    box-shadow: 0 2px 12px #0004;
+    min-width: 270px;
+  }
+  #controls h3 {
+    font-size: 13px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .ctrl-row label { flex: 0 0 145px; font-size: 11px; }
+  .ctrl-row input[type=range] { flex: 1; }
+  .ctrl-row .val {
+    flex: 0 0 36px;
+    text-align: right;
+    font-size: 11px;
+    font-family: monospace;
+  }
+  #copy-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #1a73e8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+  }
+  #copy-btn:hover { background: #1558b0; }
+  #copied-msg {
+    font-size: 11px;
+    color: green;
+    text-align: center;
+    margin-top: 4px;
+    display: none;
+  }
 
-    /* ── Header (45 mm) ───────────────────────────────────────────── */
-    .hdr {
-      min-height: var(--hdr-h);
-      display: flex;
-      border-bottom: 1pt solid #333;
-    }
-
-    /* Left panel: logo + title — all centred */
-    .hdr-left {
-      flex: 0 0 48%;
-      border-right: 1pt solid #333;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 2mm;
-      padding: 2mm 3mm;
-    }
-    .brand { display: flex; align-items: center; gap: 2mm; }
-    .brand svg  { width: 14mm; height: 14mm; }
-    .brand-name {
-      font: 700 7pt Arial,sans-serif;
-      line-height: 1.4;
-    }
-    .form-title {
-      font: 900 12pt Arial,sans-serif;
-      letter-spacing: .02em;
-    }
-
-    /* Right panel: patient ID box */
-    .hdr-right {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 1mm 2mm 1mm 2mm;
-      gap: 0;
-    }
-    .pid-banner {
-      font: 5.5pt Arial,sans-serif;
-      color: #444; text-align: center;
-      margin-bottom: 0.5mm;
-    }
-    /* Each field row */
-    .pid-row {
-      display: flex; align-items: center;
-      border-bottom: .5pt dotted #888;
-      min-height: 6mm; padding: 0;
-    }
-    .pid-row:last-child { border-bottom: none; }
-    .pid-lbl {
-      font: 7.5pt Arial,sans-serif;
-      white-space: nowrap; min-width: 20mm; flex-shrink: 0;
-    }
-    .pid-field {
-      flex: 1; min-width: 0;
-    }
-    .pid-field input, .pid-field select {
-      width: 100%; border: none; outline: none;
-      font: 8pt Arial,sans-serif;
-      background: transparent; padding: 0 1mm;
-    }
-    .pid-field select {
-      -webkit-appearance: none; appearance: none;
-      cursor: pointer; color: #222;
-    }
-    .sex-lbl { font: 8pt Arial,sans-serif; min-width: 8mm; padding-left: 2mm; flex-shrink: 0; }
-
-    /* ── Sub-header row (8 mm) ────────────────────────────────────── */
-    .subhdr {
-      min-height: var(--subh-h);
-      display: flex; align-items: center;
-      border-bottom: 1pt solid #333;
-    }
-    .sh-dt {
-      width: var(--dt-col); flex-shrink: 0;
-      border-right: 1pt solid #333;
-      font: 700 7.5pt Arial,sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      height: 100%; text-align: center; padding: 1mm;
-    }
-    .sh-note {
-      flex: 1; font: 700 7pt Arial,sans-serif;
-      text-align: center; padding: 0 2mm;
-    }
-
-    /* ── Notes area: ruled lines + two columns ────────────────────── */
-    .notes-area { flex: 1; display: flex; }
-
-    /* border-right on col-dt matches sh-dt's border-right exactly
-       (both use box-sizing:border-box at the same --dt-col width) */
-    .col-dt {
-      width: var(--dt-col); flex-shrink: 0;
-      border-right: 1pt solid #333;
-    }
-    .col-notes { flex: 1; }
-
-    /* Ruled textarea – lines drawn via background gradient */
-    textarea {
-      display: block; width: 100%; height: 100%;
-      min-height: 180mm;
-      border: none; outline: none; resize: none;
-      font: 8pt/var(--lh) Arial,sans-serif;
-      background-color: transparent;
-      /* lined paper effect */
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent calc(var(--lh) - 0.3mm),
-        #bbb        calc(var(--lh) - 0.3mm),
-        #bbb        var(--lh)
-      );
-      background-attachment: local;
-      background-size: 100% var(--lh);
-      padding: 0.5mm 2mm 0;
-      -webkit-appearance: none;
-    }
-    textarea:focus { outline: none; }
-
-    /* ── Footer (outside outer border) ───────────────────────────── */
-    .footer {
-      display: flex; justify-content: space-between; align-items: baseline;
-      padding: 1.5mm 0 0;
-      font: 5.5pt Arial,sans-serif; color: #444;
-    }
-    .footer strong { font: 700 5.5pt Arial,sans-serif; }
-
-    /* ── Right green tab ──────────────────────────────────────────── */
-    .green-tab {
-      width: var(--tab-w); flex-shrink: 0;
-      background: #5BBD2E;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative;
-    }
-    .tab-title {
-      color: #fff; font: 700 8pt Arial,sans-serif;
-      letter-spacing: .1em;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-    }
-    .tab-mr4 {
-      position: absolute; bottom: 8mm;
-      color: #fff; font: 700 9pt Arial,sans-serif;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-    }
-
-    /* ── Print ────────────────────────────────────────────────────── */
-    @media print {
-      @page { size: A4 portrait; margin: 0; }
-      *, *::before, *::after {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      html, body { background: #fff !important; }
-      #toolbar    { display: none !important; }
-      .a4-wrapper { padding: 0 !important; }
-      .a4 {
-        transform: none !important;
-        box-shadow: none !important;
-        width: 210mm !important;
-        min-height: 297mm !important;
-      }
-    }
-  </style>
+  @media print {
+    body { background: none; padding: 0; gap: 0; }
+    .page { box-shadow: none; page-break-after: always; }
+    #controls { display: none; }
+  }
+</style>
 </head>
 <body>
 
-<!-- Toolbar -->
-<div id="toolbar">
-  <div class="t-brand">
-    <svg viewBox="-12 2 215 218" fill="none">
-      <circle cx="126" cy="78"  r="72" stroke="#333" stroke-width="9"/>
-      <ellipse cx="76" cy="125" rx="84" ry="37" transform="rotate(-34 76 125)" stroke="#333" stroke-width="9"/>
-      <circle cx="88"  cy="158" r="52" stroke="#333" stroke-width="9"/>
-    </svg>
-    <div>
-      <div class="t-title">Albury Wodonga Health</div>
-      <div class="t-sub">Progress Notes · FAW0004</div>
-    </div>
-  </div>
-  <div class="spacer"></div>
-  <button class="btn-pdf" onclick="window.print()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 6 2 18 2 18 9"/>
-      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-      <rect x="6" y="14" width="12" height="8"/>
-    </svg>
-    Save as PDF
-  </button>
+<!-- ═══════════════════════════  PAGE 1  ═══════════════════════════ -->
+<div class="page page-1">
+  <table class="overlay-table">
+    <colgroup>
+      <col class="col-date">
+      <col class="col-notes">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Date / Time</th>
+        <th>Please sign each entry and print surname and designation</th>
+      </tr>
+    </thead>
+    <tbody id="body1"></tbody>
+  </table>
 </div>
 
-<!-- A4 page -->
-<div class="a4-wrapper" id="wrapper">
-<div class="a4" id="a4">
+<!-- ═══════════════════════════  PAGE 2  ═══════════════════════════ -->
+<div class="page page-2">
+  <table class="overlay-table">
+    <colgroup>
+      <col class="col-date">
+      <col class="col-notes">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Date / Time</th>
+        <th>Please sign each entry and print surname and designation</th>
+      </tr>
+    </thead>
+    <tbody id="body2"></tbody>
+  </table>
+</div>
 
-  <!-- Left barcode strip -->
-  <div class="bc-strip">
-    <div class="bc-code-group">
-      <div class="bc-barcode-wrap" id="bc-wrap">
-        <svg id="barcode"></svg>
-      </div>
-      <span class="bc-label">FAW0004</span>
-    </div>
-    <span class="bc-store-order">Store Order No.: 99083</span>
+<!-- ═══════════ ALIGNMENT CONTROL PANEL (remove when done) ═══════════ -->
+<div id="controls">
+  <h3>Table Alignment Tool</h3>
+
+  <div class="ctrl-row">
+    <label>Table top offset (mm)</label>
+    <input type="range" id="s-top"   min="30" max="100" step="0.5" value="52">
+    <span class="val" id="v-top">52</span>
+  </div>
+  <div class="ctrl-row">
+    <label>Date/Time col width (mm)</label>
+    <input type="range" id="s-date"  min="15" max="60"  step="0.5" value="28">
+    <span class="val" id="v-date">28</span>
+  </div>
+  <div class="ctrl-row">
+    <label>Notes col width (mm)</label>
+    <input type="range" id="s-notes" min="80" max="185" step="0.5" value="148">
+    <span class="val" id="v-notes">148</span>
+  </div>
+  <div class="ctrl-row">
+    <label>Row height (mm)</label>
+    <input type="range" id="s-row"   min="4"  max="12"  step="0.25" value="7">
+    <span class="val" id="v-row">7</span>
   </div>
 
-  <!-- Main form -->
-  <div class="form-box">
-    <div class="outer">
-
-      <!-- Header: 45 mm -->
-      <div class="hdr">
-        <div class="hdr-left">
-          <div class="brand">
-            <svg viewBox="0 0 200 200" fill="none">
-              <circle cx="126" cy="78"  r="72" stroke="#E5332A" stroke-width="9"/>
-              <ellipse cx="76" cy="125" rx="84" ry="37" transform="rotate(-34 76 125)" stroke="#2256A7" stroke-width="9"/>
-              <circle cx="88"  cy="158" r="52" stroke="#2DA44E" stroke-width="9"/>
-            </svg>
-            <div class="brand-name">Albury<br/>Wodonga<br/>Health</div>
-          </div>
-          <div class="form-title">PROGRESS NOTES</div>
-        </div>
-
-        <div class="hdr-right">
-          <div class="pid-banner">(Affix Patient Identification Label here)</div>
-          <div class="pid-row">
-            <span class="pid-lbl">UR No:</span>
-            <div class="pid-field">
-              <input type="text" autocomplete="off"/>
-            </div>
-          </div>
-          <div class="pid-row">
-            <span class="pid-lbl">Surname:</span>
-            <div class="pid-field">
-              <input type="text" autocomplete="family-name"/>
-            </div>
-          </div>
-          <div class="pid-row">
-            <span class="pid-lbl">Given Names:</span>
-            <div class="pid-field">
-              <input type="text" autocomplete="given-name"/>
-            </div>
-          </div>
-          <div class="pid-row">
-            <span class="pid-lbl">Date of Birth:</span>
-            <div class="pid-field" style="max-width:32mm">
-              <input type="text" inputmode="numeric" pattern="\d{2}/\d{2}/\d{4}" placeholder="DD/MM/YYYY"/>
-            </div>
-            <span class="sex-lbl">Sex:</span>
-            <div class="pid-field" style="max-width:20mm">
-              <select>
-                <option value=""></option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-                <option value="X">Other</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sub-header: 8 mm -->
-      <div class="subhdr">
-        <div class="sh-dt">Date/Time</div>
-        <div class="sh-note">Please sign each entry and print surname and designation</div>
-      </div>
-
-      <!-- Notes: two columns with 7 mm ruled lines -->
-      <div class="notes-area">
-        <div class="col-dt">
-          <textarea aria-label="Date and Time" spellcheck="false"></textarea>
-        </div>
-        <div class="col-notes">
-          <textarea aria-label="Progress notes"></textarea>
-        </div>
-      </div>
-
-    </div><!-- /.outer -->
-
-    <!-- Footer -->
-    <div class="footer">
-      <span>Version 1.0 &nbsp; March 2021</span>
-      <strong>Please turn over</strong>
-    </div>
-  </div><!-- /.form-box -->
-
-  <!-- Right green tab -->
-  <div class="green-tab">
-    <span class="tab-title">PROGRESS NOTES</span>
-    <span class="tab-mr4">MR4</span>
-  </div>
-
-</div><!-- /.a4 -->
-</div><!-- /.a4-wrapper -->
+  <button id="copy-btn">Copy CSS values</button>
+  <div id="copied-msg">Copied to clipboard!</div>
+</div>
 
 <script>
-  JsBarcode('#barcode', 'FAW0004', {
-    format:       'CODE128',
-    width:        1.4,   // bar module width → controls barcode length (= visual height after rotation)
-    height:       18,    // px → becomes visual width after rotation (~5mm); label takes remaining ~7mm
-    displayValue: false,
-    margin:       1,
-    background:   'transparent'
-  });
-
-  // SVG is absolute — size the wrapper to the VISUAL (post-rotation) dimensions,
-  // then apply the exact pixel transform so bars run left→right (vertical look).
-  requestAnimationFrame(function() {
-    const svg  = document.getElementById('barcode');
-    const wrap = document.getElementById('bc-wrap');
-    const r    = svg.getBoundingClientRect();
-    const svgW = r.width;   // original width  (→ visual HEIGHT after rotation)
-    const svgH = r.height;  // original height (→ visual WIDTH  after rotation)
-
-    // rotate(90deg) around top-left, then pull up by original height
-    // result: element occupies x:0→svgH, y:0→svgW (correct portrait block)
-    svg.style.transform = `rotate(90deg) translateY(-${svgH}px)`;
-
-    // Wrapper takes the visual (rotated) dimensions so layout flows correctly
-    wrap.style.width  = svgH + 'px';
-    wrap.style.height = svgW + 'px';
-  });
-
-  // Auto-insert slashes for DD/MM/YYYY as user types
-  document.querySelector('input[inputmode="numeric"]').addEventListener('input', function(e) {
-    let v = this.value.replace(/\D/g, '').slice(0, 8); // digits only, max 8
-    if (v.length > 4) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
-    else if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
-    this.value = v;
-  });
-
-  function scaleA4() {
-    const a4      = document.getElementById('a4');
-    const wrapper = document.getElementById('wrapper');
-    a4.style.transform = '';
-    const w     = a4.offsetWidth;
-    const h     = a4.offsetHeight;
-    const scale = Math.min(window.innerWidth / w, 1);
-    if (scale < 1) a4.style.transform = `scale(${scale})`;
-    wrapper.style.height = (h * scale + 56) + 'px';
+  // Generate 35 data rows for a given tbody
+  function buildRows(tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    for (let i = 0; i < 35; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        `<td><input type="text" aria-label="Date/Time ${i+1}"></td>` +
+        `<td><input type="text" aria-label="Notes ${i+1}"></td>`;
+      tbody.appendChild(tr);
+    }
   }
+  buildRows('body1');
+  buildRows('body2');
 
-  scaleA4();
-  window.addEventListener('resize', scaleA4);
+  // Live alignment sliders
+  const root = document.documentElement;
+  const knobs = [
+    { id: 's-top',   val: 'v-top',   css: '--table-top',       unit: 'mm' },
+    { id: 's-date',  val: 'v-date',  css: '--date-col-width',  unit: 'mm' },
+    { id: 's-notes', val: 'v-notes', css: '--notes-col-width', unit: 'mm' },
+    { id: 's-row',   val: 'v-row',   css: '--row-height',      unit: 'mm' },
+  ];
+  knobs.forEach(({ id, val, css, unit }) => {
+    const slider = document.getElementById(id);
+    const label  = document.getElementById(val);
+    slider.addEventListener('input', () => {
+      label.textContent = slider.value;
+      root.style.setProperty(css, slider.value + unit);
+    });
+  });
+
+  // Copy current values as CSS snippet
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    const lines = knobs.map(({ id, css, unit }) =>
+      `    ${css}: ${document.getElementById(id).value}${unit};`
+    );
+    const snippet = `:root {\n${lines.join('\n')}\n}`;
+    navigator.clipboard.writeText(snippet).then(() => {
+      const msg = document.getElementById('copied-msg');
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    });
+  });
 </script>
-
 </body>
 </html>
