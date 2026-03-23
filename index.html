@@ -184,11 +184,6 @@
     gap: 1mm;
   }
 
-  .patient-id .pid-row label {
-    white-space: nowrap;
-    font-size: 8pt;
-  }
-
   .patient-id .pid-row input {
     flex: 1;
     border: none;
@@ -232,11 +227,6 @@
     min-width: 0;
   }
 
-  .pid-dob-sex label {
-    white-space: nowrap;
-    font-size: 8pt;
-  }
-
   @media print {
     body { background: none; padding: 0; gap: 0; }
     .page { box-shadow: none; page-break-after: always; }
@@ -251,24 +241,19 @@
 <div class="page page-1">
   <div class="patient-id">
     <div class="pid-row">
-      <label>UR No:</label>
       <input type="text" aria-label="UR No">
     </div>
     <div class="pid-row">
-      <label>Surname:</label>
       <input type="text" aria-label="Surname">
     </div>
     <div class="pid-row">
-      <label>Given Names:</label>
       <input type="text" aria-label="Given Names">
     </div>
     <div class="pid-dob-sex">
       <div class="pid-dob">
-        <label>Date of Birth:</label>
         <input type="text" aria-label="Date of Birth">
       </div>
       <div class="pid-sex">
-        <label>Sex:</label>
         <input type="text" aria-label="Sex">
       </div>
     </div>
@@ -292,24 +277,19 @@
 <div class="page page-2">
   <div class="patient-id">
     <div class="pid-row">
-      <label>UR No:</label>
       <input type="text" aria-label="UR No">
     </div>
     <div class="pid-row">
-      <label>Surname:</label>
       <input type="text" aria-label="Surname">
     </div>
     <div class="pid-row">
-      <label>Given Names:</label>
       <input type="text" aria-label="Given Names">
     </div>
     <div class="pid-dob-sex">
       <div class="pid-dob">
-        <label>Date of Birth:</label>
         <input type="text" aria-label="Date of Birth">
       </div>
       <div class="pid-sex">
-        <label>Sex:</label>
         <input type="text" aria-label="Sex">
       </div>
     </div>
@@ -357,22 +337,6 @@
     <label>Row height (mm)</label>
     <input type="range" id="s-row"   min="4"   max="12"  step="0.01" value="6.83">
     <span class="val" id="v-row">6.83</span>
-  </div>
-
-  <div class="ctrl-row">
-    <label>Patient ID box top (mm)</label>
-    <input type="range" id="s-pid-top"   min="0"  max="60" step="0.5"  value="8">
-    <span class="val" id="v-pid-top">8</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Patient ID box left (mm)</label>
-    <input type="range" id="s-pid-left"  min="50" max="180" step="0.5" value="109">
-    <span class="val" id="v-pid-left">109</span>
-  </div>
-  <div class="ctrl-row">
-    <label>Patient ID box width (mm)</label>
-    <input type="range" id="s-pid-width" min="40" max="120" step="0.5" value="90">
-    <span class="val" id="v-pid-width">90</span>
   </div>
 
   <div class="ctrl-row-check">
@@ -479,9 +443,6 @@
     { id: 's-date',      val: 'v-date',      css: '--date-col-width',  unit: 'mm' },
     { id: 's-notes',     val: 'v-notes',     css: '--notes-col-width', unit: 'mm' },
     { id: 's-row',       val: 'v-row',       css: '--row-height',      unit: 'mm' },
-    { id: 's-pid-top',   val: 'v-pid-top',   css: '--pid-top',         unit: 'mm' },
-    { id: 's-pid-left',  val: 'v-pid-left',  css: '--pid-left',        unit: 'mm' },
-    { id: 's-pid-width', val: 'v-pid-width', css: '--pid-width',       unit: 'mm' },
   ];
 
   knobs.forEach(({ id, val, css, unit }) => {
