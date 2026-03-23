@@ -9,11 +9,11 @@
      Tune with the panel below, then paste the :root block here and
      delete the #controls div + its <script> block.                        */
   :root {
-    --table-top:        52mm;   /* top edge of table from top of page      */
-    --table-left:        0mm;   /* left edge of table from left of page    */
-    --date-col-width:   28mm;   /* width of Date/Time column               */
-    --notes-col-width: 148mm;   /* width of Notes column                   */
-    --row-height:        7mm;   /* height of every row incl. header        */
+    --table-top:        42mm;   /* top edge of table from top of page      */
+    --table-left:       21mm;   /* left edge of table from left of page    */
+    --date-col-width:  19.5mm; /* width of Date/Time column               */
+    --notes-col-width: 157mm;   /* width of Notes column                   */
+    --row-height:      6.78mm; /* height of every row incl. header        */
   }
 
   /* ── PAGE SETUP ─────────────────────────────────────────────────────── */
@@ -200,28 +200,28 @@
 
   <div class="ctrl-row">
     <label>↕ Top offset (mm)</label>
-    <input type="range" id="s-top"   min="30"  max="120" step="0.5"  value="52">
-    <span class="val" id="v-top">52</span>
+    <input type="range" id="s-top"   min="30"  max="120" step="0.5"  value="42">
+    <span class="val" id="v-top">42</span>
   </div>
   <div class="ctrl-row">
     <label>↔ Left offset (mm)</label>
-    <input type="range" id="s-left"  min="-10" max="30"  step="0.5"  value="0">
-    <span class="val" id="v-left">0</span>
+    <input type="range" id="s-left"  min="-10" max="30"  step="0.5"  value="21">
+    <span class="val" id="v-left">21</span>
   </div>
   <div class="ctrl-row">
     <label>Date/Time col width (mm)</label>
-    <input type="range" id="s-date"  min="15"  max="60"  step="0.5"  value="28">
-    <span class="val" id="v-date">28</span>
+    <input type="range" id="s-date"  min="15"  max="60"  step="0.5"  value="19.5">
+    <span class="val" id="v-date">19.5</span>
   </div>
   <div class="ctrl-row">
     <label>Notes col width (mm)</label>
-    <input type="range" id="s-notes" min="80"  max="200" step="0.5"  value="148">
-    <span class="val" id="v-notes">148</span>
+    <input type="range" id="s-notes" min="80"  max="200" step="0.5"  value="157">
+    <span class="val" id="v-notes">157</span>
   </div>
   <div class="ctrl-row">
     <label>Row height (mm)</label>
-    <input type="range" id="s-row"   min="4"   max="12"  step="0.25" value="7">
-    <span class="val" id="v-row">7</span>
+    <input type="range" id="s-row"   min="4"   max="12"  step="0.25" value="6.78">
+    <span class="val" id="v-row">6.78</span>
   </div>
 
   <div class="ctrl-row-check">
