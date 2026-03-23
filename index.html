@@ -161,10 +161,42 @@
     min-width: 0;
   }
 
+  /* ── ACTION BUTTONS ─────────────────────────────────────────────────── */
+  .action-btns {
+    position: absolute;
+    top: 118mm;
+    left: -17mm;
+    display: flex;
+    flex-direction: column;
+    gap: 8mm;
+  }
+
+  .action-btns button {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    width: 14mm;
+    height: 52mm;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font: bold 8pt Arial, sans-serif;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #btn-pdf   { background: #1a73e8; color: #fff; }
+  #btn-pdf:hover { background: #1558b0; }
+  #btn-clear { background: #d93025; color: #fff; }
+  #btn-clear:hover { background: #b0261c; }
+
   @media print {
     body { background: none; padding: 0; gap: 0; }
     .page { box-shadow: none; page-break-after: always; }
     .overlay-table th, .overlay-table td { border-color: #000; }
+    .action-btns { display: none; }
   }
 </style>
 </head>
@@ -172,6 +204,10 @@
 
 <!-- ═══════════════════════════  PAGE 1  ═══════════════════════════ -->
 <div class="page page-1">
+  <div class="action-btns">
+    <button id="btn-pdf"   onclick="window.print()">Download PDF</button>
+    <button id="btn-clear" onclick="clearData()">Clear All</button>
+  </div>
   <div class="patient-id">
     <div class="pid-row">
       <input type="text" aria-label="UR No">
@@ -336,25 +372,6 @@
     });
   });
 
-  // Live slider → CSS variable wiring
-  const knobs = [
-    { id: 's-pid-top',         val: 'v-pid-top',         css: '--pid-top',         unit: 'mm' },
-    { id: 's-pid-left',        val: 'v-pid-left',        css: '--pid-left',        unit: 'mm' },
-    { id: 's-pid-width',       val: 'v-pid-width',       css: '--pid-width',       unit: 'mm' },
-    { id: 's-pid-row-height',  val: 'v-pid-row-height',  css: '--pid-row-height',  unit: 'mm' },
-    { id: 's-pid-dob-sex-gap', val: 'v-pid-dob-sex-gap', css: '--pid-dob-sex-gap', unit: 'mm' },
-    { id: 's-pid-sex-width',   val: 'v-pid-sex-width',   css: '--pid-sex-width',   unit: 'mm' },
-  ];
-
-  knobs.forEach(({ id, val, css, unit }) => {
-    const slider = document.getElementById(id);
-    const display = document.getElementById(val);
-    slider.addEventListener('input', () => {
-      display.textContent = slider.value;
-      root.style.setProperty(css, slider.value + unit);
-    });
-  });
-
   // DOB auto-slash (DD/MM/YYYY, numeric keyboard)
   document.querySelectorAll('.pid-dob-input').forEach(inp => {
     inp.addEventListener('keydown', e => {
@@ -389,6 +406,38 @@
     });
   });
 
+  // ── LOCAL STORAGE PERSISTENCE ───────────────────────────────────────
+  const STORAGE_KEY = 'progress-notes-v1';
+
+  function allInputs() {
+    return Array.from(document.querySelectorAll('input'));
+  }
+
+  function saveData() {
+    const values = allInputs().map(inp => inp.value);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const values = JSON.parse(raw);
+    allInputs().forEach((inp, i) => {
+      if (values[i] !== undefined) inp.value = values[i];
+    });
+  }
+
+  function clearData() {
+    if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    allInputs().forEach(inp => { inp.value = ''; });
+  }
+
+  // Save on any input change
+  document.addEventListener('input', saveData);
+
+  // Restore on page load (after rows are built)
+  loadData();
 
 </script>
 </body>
