@@ -529,6 +529,16 @@
           ctx.drawImage(bgImg, 0, 0, W, H);
         }
 
+        // 2. Remove background + transform FIRST so that getBoundingClientRect
+        //    returns un-scaled layout coordinates (on mobile the page has a
+        //    CSS transform:scale() which otherwise skews the measured positions).
+        const savedBgImage   = page.style.backgroundImage;
+        const savedBgColor   = page.style.backgroundColor;
+        const savedTransform = page.style.transform;
+        page.style.backgroundImage  = 'none';
+        page.style.backgroundColor  = 'transparent';
+        page.style.transform        = 'none';
+
         // 1b. Draw patient-ID inputs manually on the canvas (white fill + text).
         //     html2canvas mis-positions text inside <input> elements (it renders
         //     text shifted/clipped vs the browser's own rendering).  We handle
@@ -538,7 +548,7 @@
 
         // Font: 8pt at 96 dpi = 8*(96/72) ≈ 10.67 px; multiply by SCALE for canvas
         const pidFontPx = Math.round(8 * (96 / 72) * SCALE);
-        ctx.font      = `${pidFontPx}px Arial, sans-serif`;
+        ctx.font         = `${pidFontPx}px Arial, sans-serif`;
         ctx.textBaseline = 'middle';
 
         pidInputs.forEach(inp => {
@@ -562,18 +572,7 @@
         // Hide inputs so html2canvas doesn't draw them again (with wrong offset)
         pidInputs.forEach(inp => { inp.style.visibility = 'hidden'; });
 
-        // 2. Capture form overlay (inputs, table) without background.
-        //    - Clear backgroundImage + backgroundColor so the page background
-        //      doesn't produce an opaque white layer over the image drawn above.
-        //    - Also set transform:none so mobile's scale() transform doesn't
-        //      make html2canvas render content only in the scaled-down sub-area.
-        const savedBgImage   = page.style.backgroundImage;
-        const savedBgColor   = page.style.backgroundColor;
-        const savedTransform = page.style.transform;
-        page.style.backgroundImage  = 'none';
-        page.style.backgroundColor  = 'transparent';
-        page.style.transform        = 'none';
-
+        // 3. Capture form overlay (table rows, etc.) — transform already removed above.
         const overlay = await html2canvas(page, {
           scale: SCALE,
           useCORS: true,
@@ -590,7 +589,7 @@
         // Restore patient-ID inputs
         pidInputs.forEach(inp => { inp.style.visibility = ''; });
 
-        // 3. Composite overlay on top of background
+        // 4. Composite overlay on top of background
         ctx.drawImage(overlay, 0, 0, W, H);
 
         pdf.addImage(out.toDataURL('image/jpeg', 0.97), 'JPEG', 0, 0, 210, 297);
