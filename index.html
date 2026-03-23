@@ -523,9 +523,13 @@
           ctx.drawImage(bgImg, 0, 0, W, H);
         }
 
-        // 2. Capture form overlay (inputs, table) without background
-        const savedBg = page.style.backgroundImage;
+        // 2. Capture form overlay (inputs, table) without background.
+        //    Must clear BOTH backgroundImage AND background-color (background: #fff
+        //    in CSS sets a white background-color that would cover the image).
+        const savedBgImage = page.style.backgroundImage;
+        const savedBgColor = page.style.backgroundColor;
         page.style.backgroundImage = 'none';
+        page.style.backgroundColor = 'transparent';
 
         const overlay = await html2canvas(page, {
           scale: SCALE,
@@ -536,7 +540,8 @@
           height: page.offsetHeight,
         });
 
-        page.style.backgroundImage = savedBg;
+        page.style.backgroundImage = savedBgImage;
+        page.style.backgroundColor = savedBgColor;
 
         // 3. Composite overlay on top of background
         ctx.drawImage(overlay, 0, 0, W, H);
