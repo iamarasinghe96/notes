@@ -497,7 +497,8 @@
 
         // 1. Add original background PNG at full native quality
         if (srcBgs[i]) {
-          pdf.addImage(srcBgs[i], 'PNG', 0, 0, 210, 297);
+          const b64 = srcBgs[i].replace(/^data:image\/\w+;base64,/, '');
+          pdf.addImage(b64, 'PNG', 0, 0, 210, 297);
         }
 
         // 2. Temporarily hide the background so html2canvas only captures
